@@ -3,11 +3,11 @@
 ## 🚨 PROBLEMAS CRÍTICOS (URGENTE)
 
 ### 1. **Configuração incorreta do Express** 
-- [ ] **CRÍTICO**: Mover `express.json()` para ANTES do `app.listen()` no `server.ts`
-- [ ] Reorganizar middlewares globais no `app.ts`
+- [x] **CRÍTICO**: Mover `express.json()` para ANTES do `app.listen()` no `server.ts`
+- [x] Reorganizar middlewares globais no `app.ts`
 
 ### 2. **Segurança - Headers e CORS**
-- [ ] **CRÍTICO**: Adicionar configuração de CORS
+- [x] **CRÍTICO**: Adicionar configuração de CORS
 - [ ] **CRÍTICO**: Implementar Helmet.js para headers de segurança
 - [ ] Configurar rate limiting para APIs
 - [ ] Adicionar sanitização contra XSS
@@ -21,10 +21,10 @@
 ## 📚 DOCUMENTAÇÃO
 
 ### 4. **API Documentation**
-- [ ] **ALTA**: Implementar Swagger/OpenAPI para documentação da API
+- [x] **ALTA**: Implementar Swagger/OpenAPI para documentação da API
 - [ ] Atualizar README com instruções completas de instalação
-- [ ] Adicionar exemplos de uso da API
-- [ ] Documentar variáveis de ambiente necessárias
+- [x] Adicionar exemplos de uso da API
+- [x] Documentar variáveis de ambiente necessárias
 
 ## 🔐 SEGURANÇA - MELHORIAS
 

@@ -6,7 +6,7 @@ const routes = (app: Express) => {
     app
       .route("/")
       .get((req: Request, res: Response) => res.status(200).send("API Node.js"));
-    app.use(express.json(), userRouter);
+    app.use(userRouter);
   };
   
   export default routes;
