@@ -1,27 +1,18 @@
-import { UserAlreadyExistsError } from "@/services/errors/userAlreadyExistsError";
 import { makeRegisterService } from "@/services/factories/makeRegisterService";
-import z from "zod";
+import { asyncHandler } from "@/middlewares/errorHandler";
 import type { Request, Response } from "express";
 
-export async function registerController(req: Request, res: Response) {
+export const registerController = asyncHandler(async (req: Request, res: Response) => {
+	const {name, email, password, role} = req.body;
 
-	const {name, email, password, role} = req.body
+	const registerService = makeRegisterService();
 
-	try {
-		const registerService = makeRegisterService();
+	await registerService.execute({
+		name,
+		email,
+		password,
+		role,
+	});
 
-		await registerService.execute({
-			name,
-			email,
-			password,
-			role,
-		});
-
-	} catch (error) {
-        if (error instanceof UserAlreadyExistsError) {
-            return res.status(409).json({ message: error.message });
-        }
-        return res.status(500).json({ message: "Internal server error" });
-    }
-    return res.status(201).json({ message: "User registered successfully" });
-}
+	return res.status(201).json({ message: "User registered successfully" });
+});
