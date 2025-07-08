@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { RegisterService } from "./registerService";
-import { UserAlreadyExistsError } from "./errors/userAlreadyExistsError";
+import { RegisterService } from "../registerService";
+import { UserAlreadyExistsError } from "../errors/userAlreadyExistsError";
 import { hash, compare } from "bcryptjs";
-import { InMemoryUsersRepository } from "../repositories/in-memory/inMemoryUsersRepository";
+import { InMemoryUsersRepository } from "../../repositories/in-memory/inMemoryUsersRepository";
 
 let usersRepository: InMemoryUsersRepository;
 let sut: RegisterService; // System Under Test
