@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RegisterService } from "../registerService";
-import { UserAlreadyExistsError } from "../errors/userAlreadyExistsError";
+import { UserAlreadyExistsError } from "@/services/errors/domainErrors";
 import { hash, compare } from "bcryptjs";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/inMemoryUsersRepository";
 
