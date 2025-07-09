@@ -1,29 +1,32 @@
 import { makeAuthenticateService } from "@/services/factories/makeAuthenticateService";
 import jwt from "jsonwebtoken";
 import type { Request, Response } from "express";
-import { InvalidCredentialsError } from "@/services/errors/invalidCredentialsError";
+import { asyncHandler } from "@/middlewares/errorHandler";
 import { env } from "@/env/index";
 
-export async function authenticateController(req: Request, res: Response) {
+export const authenticateController = asyncHandler(async (req: Request, res: Response) => {
 	const { email, password } = req.body;
 
-	try {
-		const authenticateService = makeAuthenticateService();
+	const authenticateService = makeAuthenticateService();
 
-		const { user } = await authenticateService.execute({
-			email,
-			password,
-		});
+	const { user } = await authenticateService.execute({
+		email,
+		password,
+		ip: req.ip || '127.0.0.1'
+	});
 
-		const { JWT_SECRET } = env;
+	const { JWT_SECRET } = env;
 
-		const token = jwt.sign({ sub: user.id, role: user.role }, JWT_SECRET, { expiresIn: "1h" });
-        return res.status(200).json({ message: "User authenticated successfully", token });
-
-	} catch (error) {
-		if (error instanceof InvalidCredentialsError) {
-			return res.status(400).json({ message: error.message });
+	const token = jwt.sign({ sub: user.id, role: user.role }, JWT_SECRET, { expiresIn: "1h" });
+	
+	return res.status(200).json({ 
+		message: "User authenticated successfully", 
+		token,
+		user: {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			role: user.role
 		}
-		return res.status(500).json({ message: "Internal server error" });
-	}
-}
+	});
+});

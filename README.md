@@ -116,6 +116,34 @@ Criar uma API robusta onde:
 
 ---
 
+## 📚 Documentação da API
+
+A API possui documentação interativa completa com **Swagger UI**, incluindo:
+
+### 🎨 Temas Visuais Personalizados
+- **8 temas únicos** disponíveis (escuro, claro, neon, cyberpunk, material design, oceânico, pôr do sol, roxo)
+- **Fácil troca de temas** editando uma linha de código
+- **Interface responsiva** para desktop e mobile
+
+### 📖 Acesso à Documentação
+```bash
+# Executar a aplicação
+npm run dev
+
+# Acessar documentação
+http://localhost:3001/api-docs
+```
+
+### 🔧 Personalizando Temas
+Veja o guia completo: [SWAGGER_THEMES_GUIDE.md](./SWAGGER_THEMES_GUIDE.md)
+
+### 📄 Outras Documentações
+- [Guia de Configuração CORS](./CORS_GUIDE.md)
+- [Guia de Uso do Swagger](./SWAGGER_GUIDE.md)
+- [Lista de Tarefas Pendentes](./TODO.md)
+
+---
+
 ## ⚙️ Requisitos Não Funcionais
 
 1. API containerizada com Docker.
