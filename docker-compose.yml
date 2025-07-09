@@ -14,7 +14,7 @@ services:
 
   app:
     build: .
-    command: npm run start:dev
+    command: sh -c "npx prisma migrate deploy && npm run start:dev"
     container_name: sistemas-pedidos-comprovantes-api
     ports:
       - "3001:3001"
