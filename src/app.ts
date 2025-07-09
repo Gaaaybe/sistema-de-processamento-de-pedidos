@@ -5,10 +5,10 @@ import { env } from "@/env";
 import { openApiDocument } from "./docs/swagger";
 import routes from "./controllers/index";
 import { globalErrorHandler, notFoundHandler } from "./middlewares/errorHandler";
+import { smartAuditMiddleware } from "./middlewares/auditMiddleware";
 
 const app = express();
 
-// Configuração do CORS
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     const allowedOrigins = env.NODE_ENV === "production" 
@@ -46,11 +46,10 @@ const corsOptions = {
   ]
 };
 
-// Middlewares globais
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+app.use(smartAuditMiddleware);
 
-// Documentação Swagger (apenas em desenvolvimento e teste)
 if (env.NODE_ENV !== "production") {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument, {
     customSiteTitle: "🚀 Sistema de Pedidos API",
@@ -58,7 +57,7 @@ if (env.NODE_ENV !== "production") {
     swaggerOptions: {
       persistAuthorization: true,
       displayRequestDuration: true,
-      docExpansion: "none", // Opções: "list", "full", "none"
+      docExpansion: "none",
       filter: true,
       showRequestHeaders: true,
       showCommonExtensions: true,
@@ -75,7 +74,6 @@ if (env.NODE_ENV !== "production") {
     explorer: true
   }));
   
-  // Endpoint para baixar o JSON do OpenAPI
   app.get("/api-docs.json", (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(openApiDocument);
@@ -84,13 +82,10 @@ if (env.NODE_ENV !== "production") {
   console.log("📖 Docs on: http://localhost:3001/api-docs");
 }
 
-// Rotas
 routes(app);
 
-// Middleware para rotas não encontradas (deve vir depois das rotas)
 app.use(notFoundHandler);
 
-// Middleware global de tratamento de erros (deve ser o último)
 app.use(globalErrorHandler);
 
 export default app;
