@@ -82,6 +82,16 @@ if (env.NODE_ENV !== "production") {
   console.log("📖 Docs on: http://localhost:3001/api-docs");
 }
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: env.NODE_ENV,
+    uptime: process.uptime()
+  });
+});
+
 routes(app);
 
 app.use(notFoundHandler);
