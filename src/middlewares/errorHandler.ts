@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { env } from "@/env";
 import { mapDomainErrorToHttp } from "@/controllers/errors/errorMapper";
 import { DomainError } from "@/services/errors/domainErrors";
+import { logger } from "@/lib/winston";
 
 interface ErrorResponse {
   message: string;
@@ -47,6 +48,11 @@ function createErrorResponse(
 }
 
 function logError(error: Error, req: Request, statusCode: number) {
+  // Não logar erros de cliente em ambiente de teste
+  if (env.NODE_ENV === 'test' && statusCode < 500) {
+    return;
+  }
+
   const logData = {
     message: error.message,
     stack: error.stack,
@@ -55,14 +61,13 @@ function logError(error: Error, req: Request, statusCode: number) {
     url: req.originalUrl,
     userAgent: req.get('User-Agent'),
     ip: req.ip,
-    timestamp: new Date().toISOString(),
     ...(req.user && { userId: req.user.id, userRole: req.user.role })
   };
 
   if (statusCode >= 500) {
-    console.error('🚨 SERVER ERROR:', logData);
+    logger.error('🚨 SERVER ERROR:', logData);
   } else if (statusCode >= 400) {
-    console.warn('⚠️  CLIENT ERROR:', logData);
+    logger.warn('⚠️  CLIENT ERROR:', logData);
   }
 }
 
@@ -164,7 +169,7 @@ export function notFoundHandler(req: Request, res: Response) {
     req
   );
   
-  console.warn('🔍 ROUTE NOT FOUND:', {
+  logger.warn('🔍 ROUTE NOT FOUND:', {
     method: req.method,
     url: req.originalUrl,
     ip: req.ip,

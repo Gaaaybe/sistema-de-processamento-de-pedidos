@@ -12,6 +12,7 @@ export const authenticateController = asyncHandler(async (req: Request, res: Res
 	const { user } = await authenticateService.execute({
 		email,
 		password,
+		ip: req.ip || '127.0.0.1'
 	});
 
 	const { JWT_SECRET } = env;
