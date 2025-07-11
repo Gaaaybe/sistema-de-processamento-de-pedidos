@@ -5,7 +5,13 @@ const envSchema = z.object({
 	NODE_ENV: z.enum(["dev", "test", "production"]).default("dev"),
 	JWT_SECRET: z.string(),
 	PORT: z.coerce.number().default(3001),
-	CORS_ORIGINS: z.string().optional().default("http://localhost:3000,http://localhost:5173"),
+	CORS_ORIGINS: z
+		.string()
+		.optional()
+		.default("http://localhost:3000,http://localhost:5173"),
+	CLOUDINARY_CLOUD_NAME: z.string(),
+	CLOUDINARY_API_KEY: z.string(),
+	CLOUDINARY_API_SECRET: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

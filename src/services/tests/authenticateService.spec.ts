@@ -1,50 +1,50 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { AuthenticateService } from "../authenticateService";
-import { InMemoryUsersRepository } from "../../repositories/in-memory/inMemoryUsersRepository";
 import { InvalidCredentialsError } from "@/services/errors/domainErrors";
 import { hash } from "bcryptjs";
+import { beforeEach, describe, expect, it } from "vitest";
+import { InMemoryUsersRepository } from "../../repositories/in-memory/inMemoryUsersRepository";
+import { AuthenticateService } from "../authenticateService";
 
 let usersRepository: InMemoryUsersRepository;
 let sut: AuthenticateService;
 
 describe("Authenticate Service", () => {
-    beforeEach(async () => {
-        usersRepository = new InMemoryUsersRepository();
-        sut = new AuthenticateService(usersRepository);
+	beforeEach(async () => {
+		usersRepository = new InMemoryUsersRepository();
+		sut = new AuthenticateService(usersRepository);
 
-        await usersRepository.create({
-            name: "John Doe",
-            email: "johndoe@example.com",
-            password_hash: await hash("123456", 8),
-            role: "user",
-        });
-    });
+		await usersRepository.create({
+			name: "John Doe",
+			email: "johndoe@example.com",
+			password_hash: await hash("123456", 8),
+			role: "user",
+		});
+	});
 
-    it("should authenticate with valid credentials", async () => {
-        const { user } = await sut.execute({
-            email: "johndoe@example.com",
-            password: "123456",
-        });
+	it("should authenticate with valid credentials", async () => {
+		const { user } = await sut.execute({
+			email: "johndoe@example.com",
+			password: "123456",
+		});
 
-        expect(user).toHaveProperty("id");
-        expect(user.email).toBe("johndoe@example.com");
-    });
+		expect(user).toHaveProperty("id");
+		expect(user.email).toBe("johndoe@example.com");
+	});
 
-    it("should not authenticate with invalid email", async () => {
-        await expect(
-            sut.execute({
-                email: "invalid@example.com",
-                password: "123456",
-            })
-        ).rejects.toBeInstanceOf(InvalidCredentialsError);
-    });
+	it("should not authenticate with invalid email", async () => {
+		await expect(
+			sut.execute({
+				email: "invalid@example.com",
+				password: "123456",
+			}),
+		).rejects.toBeInstanceOf(InvalidCredentialsError);
+	});
 
-    it("should not authenticate with invalid password", async () => {
-        await expect(
-            sut.execute({
-                email: "johndoe@example.com",
-                password: "wrongpassword",
-            })
-        ).rejects.toBeInstanceOf(InvalidCredentialsError);
-    });
+	it("should not authenticate with invalid password", async () => {
+		await expect(
+			sut.execute({
+				email: "johndoe@example.com",
+				password: "wrongpassword",
+			}),
+		).rejects.toBeInstanceOf(InvalidCredentialsError);
+	});
 });

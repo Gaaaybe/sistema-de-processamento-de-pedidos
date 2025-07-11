@@ -15,7 +15,7 @@ export const registerRequestSchema = z
 	.strict();
 
 export const registerResponseSchema = z.object({
-	message: z.string()
+	message: z.string(),
 });
 
 export const authenticateRequestSchema = z
@@ -31,17 +31,21 @@ export const authenticateResponseSchema = z.object({
 		id: z.string(),
 		name: z.string(),
 		email: z.string().email(),
-		role: z.enum(["admin", "user"])
-	})
+		role: z.enum(["admin", "user"]),
+	}),
 });
 
 export const errorResponseSchema = z.object({
 	message: z.string(),
-	errors: z.array(z.object({
-		code: z.string().optional(),
-		message: z.string(),
-		path: z.array(z.union([z.string(), z.number()])).optional()
-	})).optional()
+	errors: z
+		.array(
+			z.object({
+				code: z.string().optional(),
+				message: z.string(),
+				path: z.array(z.union([z.string(), z.number()])).optional(),
+			}),
+		)
+		.optional(),
 });
 
 export const usersListResponseSchema = z.array(
@@ -50,8 +54,8 @@ export const usersListResponseSchema = z.array(
 		name: z.string(),
 		email: z.string().email(),
 		role: z.enum(["admin", "user"]),
-		createdAt: z.string().datetime()
-	})
+		createdAt: z.string().datetime(),
+	}),
 );
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;

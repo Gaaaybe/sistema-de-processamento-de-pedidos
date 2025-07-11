@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { RegisterService } from "../registerService";
 import { UserAlreadyExistsError } from "@/services/errors/domainErrors";
-import { hash, compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/inMemoryUsersRepository";
+import { RegisterService } from "../registerService";
 
 let usersRepository: InMemoryUsersRepository;
 let sut: RegisterService; // System Under Test
@@ -47,21 +47,21 @@ describe("Register Service", () => {
 
 		expect(isPasswordCorrectlyHashed).toBe(true);
 	});
-    it("should not allow registering with an existing email", async () => {
-        await sut.execute({
-            name: "John Doe",
-            email: "johndoe@example.com",
-            password: "123456",
-            role: "user",
-        });
+	it("should not allow registering with an existing email", async () => {
+		await sut.execute({
+			name: "John Doe",
+			email: "johndoe@example.com",
+			password: "123456",
+			role: "user",
+		});
 
-        await expect(
-            sut.execute({
-                name: "John Doe",
-                email: "johndoe@example.com",
-                password: "123456",
-                role: "user",
-            })
-        ).rejects.toBeInstanceOf(UserAlreadyExistsError);
-    });
+		await expect(
+			sut.execute({
+				name: "John Doe",
+				email: "johndoe@example.com",
+				password: "123456",
+				role: "user",
+			}),
+		).rejects.toBeInstanceOf(UserAlreadyExistsError);
+	});
 });
