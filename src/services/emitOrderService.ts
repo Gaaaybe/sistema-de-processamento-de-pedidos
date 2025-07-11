@@ -9,6 +9,7 @@ interface EmitOrderServiceRequest {
 	title: string;
 	description?: string;
 	imageUrl: string;
+	imagePublicId?: string;
 }
 
 interface EmitOrderServiceResponse {
@@ -23,7 +24,9 @@ export class EmitOrderService {
 		title,
 		description = "",
 		imageUrl,
+		imagePublicId,
 	}: EmitOrderServiceRequest): Promise<EmitOrderServiceResponse> {
+
 		logger.info("Starting order emission", { userId, title });
 		const existingOrder = await this.ordersRepository.findFirstByUserAndStatus(
 			userId,
@@ -47,8 +50,13 @@ export class EmitOrderService {
 			orderId: order.id,
 			userId,
 			title,
+			imageUrl: `${imageUrl.substring(0, 50)} ...`, 
 		});
-		AuditService.orderCreated(order.id, order.userId, order.title);
+        AuditService.orderCreated(order.id, order.userId, {
+            title: order.title,
+            description: order.description,
+            imagePublicId
+        });
 
 		return { order };
 	}
