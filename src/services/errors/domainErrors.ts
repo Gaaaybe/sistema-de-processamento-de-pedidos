@@ -57,10 +57,11 @@ export class OrderNotFoundError extends DomainError {
   }
 }
 
-export class InsufficientBalanceError extends DomainError {
-  readonly code = 'INSUFFICIENT_BALANCE';
+export class OrderAlreadyExistsError extends DomainError {
+  readonly code = 'ORDER_ALREADY_EXISTS';
   
-  constructor(message: string = "Insufficient balance") {
+  constructor(message: string = "Order already exists") {
     super(message);
   }
+  
 }
