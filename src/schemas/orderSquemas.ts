@@ -10,8 +10,8 @@ export const emitOrderRequestSchema = z
 			.string()
 			.max(1000, "Descrição deve ter no máximo 1000 caracteres")
 			.optional(),
-		imageUrl: z.string().url("URL da imagem inválida").optional(), // Será preenchida pelo middleware
-		imagePublicId: z.string().optional(), // Para controle do Cloudinary
+		imageUrl: z.string().url("URL da imagem inválida"),
+		imagePublicId: z.string(),
 	})
 	.strict();
 
