@@ -1,5 +1,5 @@
 import { authenticateRequestSchema } from "@/schemas/userSchemas";
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 export const validateAuthenticate = (
 	req: Request,
