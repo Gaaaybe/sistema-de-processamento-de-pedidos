@@ -3,15 +3,13 @@ import { z } from "zod";
 export const emitOrderRequestSchema = z
 	.object({
 		title: z
-			.string()
+			.string({ required_error: "Título é obrigatório" })
 			.min(1, "Título é obrigatório")
 			.max(100, "Título deve ter no máximo 100 caracteres"),
 		description: z
-			.string()
-			.max(1000, "Descrição deve ter no máximo 1000 caracteres")
-			.optional(),
-		imageUrl: z.string().url("URL da imagem inválida").optional(), // Será preenchida pelo middleware
-		imagePublicId: z.string().optional(), // Para controle do Cloudinary
+			.string({ required_error: "Descrição é obrigatória" })
+			.min(1, "Descrição é obrigatória")
+			.max(1000, "Descrição deve ter no máximo 1000 caracteres"),
 	})
 	.strict();
 
@@ -20,10 +18,6 @@ export const emitOrderResponseSchema = z.object({
 	order: z.object({
 		id: z.string(),
 		title: z.string(),
-		description: z.string(),
-		imageUrl: z.string(),
-		status: z.enum(["pending", "processing", "approved", "rejected"]),
-		createdAt: z.string().datetime(),
 		userId: z.string(),
 	}),
 });

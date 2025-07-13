@@ -1,15 +1,26 @@
-import app from "@/app"; // sua instância do Express
-import { prisma } from "@/lib/prisma"; // instância do Prisma
+import app from "@/app";
+import { prisma } from "@/lib/prisma";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+async function cleanDatabase() {
+  try {
+    await prisma.$executeRaw`DELETE FROM "orders"`;
+    await prisma.$executeRaw`DELETE FROM "users"`;
+    await prisma.$executeRaw`ALTER SEQUENCE IF EXISTS "orders_id_seq" RESTART WITH 1`;
+    await prisma.$executeRaw`ALTER SEQUENCE IF EXISTS "users_id_seq" RESTART WITH 1`;
+  } catch (error) {
+    console.error("Erro na limpeza do banco:", error);
+  }
+}
+
 describe("Register User E2E", () => {
 	beforeEach(async () => {
-		await prisma.user.deleteMany();
+		await cleanDatabase();
 	});
 
 	afterEach(async () => {
-		await prisma.user.deleteMany();
+		await cleanDatabase();
 	});
 
 	it("deve registrar um novo usuário", async () => {

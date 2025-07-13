@@ -3,6 +3,7 @@ import { env } from "@/env";
 import { logger } from "@/lib/winston";
 import { DomainError } from "@/services/errors/domainErrors";
 import type { NextFunction, Request, Response } from "express";
+import type multer from "multer";
 import type { ZodError } from "zod";
 
 interface ErrorResponse {
@@ -16,6 +17,13 @@ interface ErrorResponse {
 	path: string;
 	method: string;
 	statusCode: number;
+	stack?: string;
+}
+
+interface ErrorHandlerResult {
+	statusCode: number;
+	message: string;
+	errors?: Array<{ field?: string; message: string; code?: string }>;
 }
 
 export class AppError extends Error {
@@ -48,7 +56,6 @@ function createErrorResponse(
 }
 
 function logError(error: Error, req: Request, statusCode: number) {
-	// Não logar erros de cliente em ambiente de teste
 	if (env.NODE_ENV === "test" && statusCode < 500) {
 		return;
 	}
@@ -71,21 +78,21 @@ function logError(error: Error, req: Request, statusCode: number) {
 	}
 }
 
-const errorHandlers = new Map<
-	string,
-	(error: any) => { statusCode: number; message: string; errors?: any[] }
->([
+const errorHandlers = new Map<string, (error: unknown) => ErrorHandlerResult>([
 	[
 		"ZodError",
-		(error: ZodError) => ({
-			statusCode: 400,
-			message: "Validation failed",
-			errors: error.errors.map((err) => ({
-				field: err.path.join("."),
-				message: err.message,
-				code: err.code,
-			})),
-		}),
+		(error: unknown) => {
+			const zodError = error as ZodError;
+			return {
+				statusCode: 400,
+				message: "Validation failed",
+				errors: zodError.errors.map((err) => ({
+					field: err.path.join("."),
+					message: err.message,
+					code: err.code,
+				})),
+			};
+		},
 	],
 
 	[
@@ -118,6 +125,30 @@ const errorHandlers = new Map<
 			statusCode: 400,
 			message: "Validation error",
 		}),
+	],
+
+	[
+		"MulterError",
+		(error: unknown) => {
+			const multerError = error as multer.MulterError;
+			
+			const multerErrorMessages: Record<string, string> = {
+				LIMIT_FILE_SIZE: "File size too large. Maximum 5MB allowed.",
+				LIMIT_UNEXPECTED_FILE: 'Use "image" as the field name for file upload.',
+				LIMIT_FILE_COUNT: "Only one file is allowed.",
+				LIMIT_FIELD_COUNT: "Too many fields in the form.",
+				LIMIT_FIELD_KEY: "Field name too long.",
+				LIMIT_FIELD_VALUE: "Field value too long.",
+				LIMIT_PART_COUNT: "Too many parts in the multipart form.",
+			};
+
+			const message = multerErrorMessages[multerError.code] || `Upload error: ${multerError.message}`;
+
+			return {
+				statusCode: 400,
+				message,
+			};
+		},
 	],
 ]);
 
@@ -158,7 +189,7 @@ export function globalErrorHandler(
 	const errorResponse = createErrorResponse(message, statusCode, req, errors);
 
 	if (env.NODE_ENV === "dev" && statusCode >= 500) {
-		(errorResponse as any).stack = error.stack;
+		errorResponse.stack = error.stack;
 	}
 
 	if (env.NODE_ENV === "production" && statusCode >= 500) {
@@ -169,7 +200,7 @@ export function globalErrorHandler(
 }
 
 export function asyncHandler<T extends Request, U extends Response>(
-	fn: (req: T, res: U, next: NextFunction) => Promise<any>,
+	fn: (req: T, res: U, next: NextFunction) => Promise<unknown>,
 ) {
 	return (req: T, res: U, next: NextFunction) => {
 		Promise.resolve(fn(req, res, next)).catch(next);
@@ -196,11 +227,7 @@ export function notFoundHandler(req: Request, res: Response) {
 
 export function registerErrorHandler(
 	errorClass: string,
-	handler: (error: any) => {
-		statusCode: number;
-		message: string;
-		errors?: any[];
-	},
+	handler: (error: unknown) => ErrorHandlerResult,
 ) {
 	errorHandlers.set(errorClass, handler);
 }
@@ -210,8 +237,11 @@ export function createDomainError(
 	defaultStatusCode = 400,
 	defaultMessage?: string,
 ) {
-	registerErrorHandler(name, (error) => ({
-		statusCode: defaultStatusCode,
-		message: defaultMessage || error.message,
-	}));
+	registerErrorHandler(name, (error) => {
+		const err = error as Error;
+		return {
+			statusCode: defaultStatusCode,
+			message: defaultMessage || err.message,
+		};
+	});
 }

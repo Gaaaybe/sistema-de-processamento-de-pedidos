@@ -8,6 +8,12 @@ export default defineConfig({
 		},
 	},
 	test: {
-		// ...outras configs
+		pool: "threads",
+		poolOptions: {
+			threads: {
+				singleThread: true,
+			},
+		},
+		testTimeout: 30000,
 	},
 });
