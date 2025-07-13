@@ -2,12 +2,12 @@
 export const openApiDocument = {
 	openapi: "3.0.0",
 	info: {
-		version: "1.0.0",
+		version: "2.0.0",
 		title: "Sistema de Processamento de Pedidos API",
 		description: `
 ## 📋 Sobre a API
 
-Esta API fornece funcionalidades para gerenciamento de usuários e autenticação JWT.
+Esta API fornece funcionalidades para gerenciamento de usuários, autenticação JWT e processamento de pedidos com upload de imagens.
 
 ### 🔐 Autenticação
 - Use o endpoint \`/users/authenticate\` para obter um token JWT
@@ -15,8 +15,14 @@ Esta API fornece funcionalidades para gerenciamento de usuários e autenticaçã
 - Tokens têm validade limitada por segurança
 
 ### 👥 Tipos de Usuário
-- **user**: Usuário padrão com acesso limitado
+- **user**: Usuário padrão com acesso a criação de pedidos
 - **admin**: Administrador com acesso total
+
+### 📦 Sistema de Pedidos
+- Usuários podem criar pedidos com upload de imagem obrigatório
+- Apenas um pedido pendente por usuário é permitido
+- Formatos suportados: PNG, JPEG, JPG
+- Tamanho máximo: 5MB por arquivo
 
 ### 📝 Formatos de Data
 - Todas as datas seguem o padrão ISO 8601 (UTC)
@@ -30,6 +36,7 @@ Esta API fornece funcionalidades para gerenciamento de usuários e autenticaçã
 - Senhas devem ter pelo menos 6 caracteres
 - Senhas devem conter: maiúscula, minúscula e número
 - Dados sensíveis nunca são retornados nas respostas
+- Upload de arquivos com validação de tipo e tamanho
     `,
 		contact: {
 			name: "Equipe de Desenvolvimento",
@@ -270,6 +277,137 @@ Esta API fornece funcionalidades para gerenciamento de usuários e autenticaçã
 					$ref: "#/components/schemas/UserData",
 				},
 			},
+			// Orders Schemas
+			EmitOrderRequest: {
+				type: "object",
+				required: ["title", "description", "image"],
+				properties: {
+					title: {
+						type: "string",
+						minLength: 1,
+						maxLength: 255,
+						description: "Título do pedido",
+						example: "Pedido de Comprovante de Matrícula",
+					},
+					description: {
+						type: "string",
+						minLength: 1,
+						maxLength: 1000,
+						description: "Descrição detalhada do pedido",
+						example: "Solicito comprovante de matrícula atualizado para o semestre 2025.1",
+					},
+					image: {
+						type: "string",
+						format: "binary",
+						description: "Imagem anexa ao pedido (PNG, JPEG, JPG - máx 5MB)",
+					},
+				},
+				additionalProperties: false,
+			},
+			EmitOrderResponse: {
+				type: "object",
+				required: ["id", "title", "description", "imageUrl", "status", "createdAt"],
+				properties: {
+					id: {
+						type: "string",
+						format: "uuid",
+						description: "ID único do pedido",
+						example: "550e8400-e29b-41d4-a716-446655440000",
+					},
+					title: {
+						type: "string",
+						description: "Título do pedido",
+						example: "Pedido de Comprovante de Matrícula",
+					},
+					description: {
+						type: "string",
+						description: "Descrição do pedido",
+						example: "Solicito comprovante de matrícula atualizado para o semestre 2025.1",
+					},
+					imageUrl: {
+						type: "string",
+						format: "uri",
+						description: "URL da imagem uploadada",
+						example: "https://res.cloudinary.com/demo/image/upload/v1234567890/orders/abc123.jpg",
+					},
+					status: {
+						type: "string",
+						enum: ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"],
+						description: "Status atual do pedido",
+						example: "PENDING",
+					},
+					createdAt: {
+						type: "string",
+						format: "date-time",
+						description: "Data de criação do pedido",
+						example: "2025-07-12T10:30:00.000Z",
+					},
+				},
+			},
+			OrderExistsErrorResponse: {
+				type: "object",
+				required: ["message", "timestamp", "path", "method", "statusCode"],
+				properties: {
+					message: {
+						type: "string",
+						description: "Mensagem de erro quando usuário já tem pedido pendente",
+						example: "User already has a pending order",
+					},
+					timestamp: {
+						type: "string",
+						format: "date-time",
+						description: "Timestamp do erro",
+						example: "2025-07-12T10:30:00.000Z",
+					},
+					path: {
+						type: "string",
+						description: "Path da requisição",
+						example: "/orders",
+					},
+					method: {
+						type: "string",
+						description: "Método HTTP",
+						example: "POST",
+					},
+					statusCode: {
+						type: "integer",
+						description: "Código de status HTTP",
+						example: 409,
+					},
+				},
+			},
+			FileValidationErrorResponse: {
+				type: "object",
+				required: ["message", "timestamp", "path", "method", "statusCode"],
+				properties: {
+					message: {
+						type: "string",
+						description: "Mensagem de erro de validação de arquivo",
+						example: "Image is required",
+					},
+					timestamp: {
+						type: "string",
+						format: "date-time",
+						description: "Timestamp do erro",
+						example: "2025-07-12T10:30:00.000Z",
+					},
+					path: {
+						type: "string",
+						description: "Path da requisição",
+						example: "/orders",
+					},
+					method: {
+						type: "string",
+						description: "Método HTTP",
+						example: "POST",
+					},
+					statusCode: {
+						type: "integer",
+						description: "Código de status HTTP",
+						example: 400,
+					},
+				},
+			},
 		},
 	},
 	paths: {
@@ -419,6 +557,89 @@ Esta API fornece funcionalidades para gerenciamento de usuários e autenticaçã
 				},
 			},
 		},
+		"/orders": {
+			post: {
+				tags: ["Orders"],
+				summary: "Criar novo pedido",
+				description: "Cria um novo pedido com upload de imagem. Usuário deve estar autenticado e não pode ter pedidos pendentes.",
+				security: [{ bearerAuth: [] }],
+				requestBody: {
+					required: true,
+					content: {
+						"multipart/form-data": {
+							schema: {
+								$ref: "#/components/schemas/EmitOrderRequest",
+							},
+						},
+					},
+				},
+				responses: {
+					"201": {
+						description: "Pedido criado com sucesso",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/EmitOrderResponse",
+								},
+							},
+						},
+					},
+					"400": {
+						description: "Dados inválidos ou imagem não fornecida",
+						content: {
+							"application/json": {
+								schema: {
+									anyOf: [
+										{ $ref: "#/components/schemas/ValidationErrorResponse" },
+										{ $ref: "#/components/schemas/FileValidationErrorResponse" }
+									],
+								},
+							},
+						},
+					},
+					"401": {
+						description: "Token não fornecido ou inválido",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/UnauthorizedErrorResponse",
+								},
+							},
+						},
+					},
+					"409": {
+						description: "Usuário já possui um pedido pendente",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/OrderExistsErrorResponse",
+								},
+							},
+						},
+					},
+					"413": {
+						description: "Arquivo muito grande (máximo 5MB)",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/FileValidationErrorResponse",
+								},
+							},
+						},
+					},
+					"415": {
+						description: "Formato de arquivo não suportado",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/FileValidationErrorResponse",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	},
 	tags: [
 		{
@@ -428,6 +649,10 @@ Esta API fornece funcionalidades para gerenciamento de usuários e autenticaçã
 		{
 			name: "Authentication",
 			description: "Operações de autenticação e autorização",
+		},
+		{
+			name: "Orders",
+			description: "Operações relacionadas a pedidos e upload de documentos",
 		},
 	],
 };

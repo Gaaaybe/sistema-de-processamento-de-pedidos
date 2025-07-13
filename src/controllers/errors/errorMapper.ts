@@ -30,7 +30,7 @@ const DOMAIN_TO_HTTP_MAP = new Map<string, HttpErrorMapping>([
 	[
 		"UnauthorizedError",
 		{
-			status: 403,
+			status: 401,
 			message: "Access denied",
 		},
 	],
@@ -46,6 +46,13 @@ const DOMAIN_TO_HTTP_MAP = new Map<string, HttpErrorMapping>([
 		{
 			status: 404,
 			message: "Order not found",
+		},
+	],
+	[
+		"OrderAlreadyExistsError",
+		{
+			status: 409,
+			message: "User already has a pending order",
 		},
 	],
 	[

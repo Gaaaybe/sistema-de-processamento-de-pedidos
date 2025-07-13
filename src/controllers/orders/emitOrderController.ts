@@ -1,14 +1,11 @@
 import { makeEmitOrderService } from "@/services/factories/makeEmitOrderService";
 import { asyncHandler } from "@/middlewares/errorHandler";
 import type { Request, Response } from "express";
+import { ValidationError } from "@/services/errors/domainErrors";
 
 export const emitOrderController = asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, imageUrl, imagePublicId } = req.body;
-  const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ message: "User not authenticated" });
-  }
+  const { title, description } = req.body;
+  const userId = (req.user as NonNullable<typeof req.user>).id;
 
   const emitOrderService = makeEmitOrderService();
 
@@ -16,12 +13,15 @@ export const emitOrderController = asyncHandler(async (req: Request, res: Respon
     userId,
     title,
     description,
-    imageUrl,
-    imagePublicId
+    imageBuffer: (req.file as NonNullable<typeof req.file>).buffer,
   });
 
   return res.status(201).json({
     message: "Order created successfully",
-    order: order.title
+    order: {
+      id: order.id,
+      title: order.title,
+      userId: order.userId,
+    },
   });
 });

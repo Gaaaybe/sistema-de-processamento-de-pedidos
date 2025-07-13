@@ -13,7 +13,9 @@
 		"db:test:up": "docker compose -f docker-compose.test.yml up -d",
 		"db:test:down": "docker compose -f docker-compose.test.yml down -v",
 		"test:e2e:all": "npm run db:test:up && npm run db:dev && npm run test:e2e && npm run db:test:down",
-		"test:e2e": "vitest --dir src/controllers/users/tests --ui --watch"
+		"test:e2e": "vitest --dir src/controllers --ui --watch",
+		"test:e2e:users": "vitest --dir src/controllers/users/tests --ui --watch",
+		"test:e2e:orders": "vitest --dir src/controllers/orders/tests --ui --watch"
 	},
 	"keywords": [],
 	"author": "",

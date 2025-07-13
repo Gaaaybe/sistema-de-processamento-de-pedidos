@@ -478,7 +478,225 @@
 			]
 		},
 		{
-			"name": "🔧 Health Check",
+			"name": "� Orders",
+			"item": [
+				{
+					"name": "Emit Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has order data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('title');",
+									"    pm.expect(jsonData).to.have.property('imageUrl');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"type": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Pedido de Teste via Postman",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Descrição detalhada do pedido de teste",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Imagem do pedido (PNG, JPEG, JPG - máx 5MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Cria um novo pedido com imagem. Requer autenticação de usuário."
+					}
+				},
+				{
+					"name": "Emit Order - No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Response has unauthorized message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('token');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"type": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Pedido sem Auth",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Descrição",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Testa criação de pedido sem autenticação"
+					}
+				},
+				{
+					"name": "Emit Order - No Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response has validation error\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('required');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"type": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Pedido sem Imagem",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Descrição do pedido sem imagem",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Testa criação de pedido sem imagem anexada"
+					}
+				},
+				{
+					"name": "Emit Order - Invalid Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response has validation error\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('required');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"type": "formdata",
+							"formdata": [
+								{
+									"key": "description",
+									"value": "Descrição sem título",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Testa validação de dados obrigatórios"
+					}
+				}
+			]
+		},
+		{
+			"name": "�🔧 Health Check",
 			"item": [
 				{
 					"name": "Health Check",
