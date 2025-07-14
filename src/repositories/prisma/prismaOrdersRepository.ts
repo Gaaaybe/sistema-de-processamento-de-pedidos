@@ -25,6 +25,13 @@ export class PrismaOrdersRepository implements OrdersRepository {
 		return order;
 	}
 
+	async findManyByUser(userId: string) {
+		const orders = await prisma.order.findMany({
+			where: { userId },
+		});
+		return orders;
+	}
+
 	async create(data: Prisma.OrderUncheckedCreateInput) {
 		const order = await prisma.order.create({
 			data,

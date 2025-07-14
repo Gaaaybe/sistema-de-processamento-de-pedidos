@@ -23,6 +23,11 @@ export class InMemoryOrdersRepository implements OrdersRepository {
 		return order || null;
 	}
 
+	async findManyByUser(userId: string): Promise<Order[]> {
+		const orders = this.items.filter((order) => order.userId === userId);
+		return orders;
+	}
+
 	async create(data: Prisma.OrderUncheckedCreateInput): Promise<Order> {
 		const order: Order = {
 			id: data.id || crypto.randomUUID(),

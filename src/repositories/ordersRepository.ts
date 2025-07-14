@@ -10,4 +10,7 @@ export interface OrdersRepository {
 		userId: string,
 		status: OrderStatus,
 	): Promise<Order | null>;
+	findManyByUser(
+		userId: string,
+	): Promise<Order[]>;
 }
