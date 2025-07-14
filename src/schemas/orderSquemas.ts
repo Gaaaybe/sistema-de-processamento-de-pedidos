@@ -41,5 +41,28 @@ export const getUserOrdersResponseSchema = z.object({
     ),
 });
 
+export const getOrderRequestSchema = z.object({
+    id: z.string().uuid("ID de pedido inválido"),
+})
+
+export const getOrderResponseSchema = z.object({
+    order: z.object({
+        id: z.string().uuid("ID de pedido inválido"),
+        title: z.string(),
+        description: z.string().optional(),
+        imageUrl: z.string().optional(),
+        status: z.enum(["pending", "processing", "completed", "cancelled"]),
+        createdAt: z.string(),
+        processedAt: z.string().nullable(),
+        userId: z.string(),
+    }),
+});
+
 export type EmitOrderRequest = z.infer<typeof emitOrderRequestSchema>;
 export type EmitOrderResponse = z.infer<typeof emitOrderResponseSchema>;
+
+export type GetUserOrdersRequest = z.infer<typeof getUserOrdersRequestSchema>;
+export type GetUserOrdersResponse = z.infer<typeof getUserOrdersResponseSchema>;
+
+export type GetOrderRequest = z.infer<typeof getOrderRequestSchema>;
+export type GetOrderResponse = z.infer<typeof getOrderResponseSchema>;
