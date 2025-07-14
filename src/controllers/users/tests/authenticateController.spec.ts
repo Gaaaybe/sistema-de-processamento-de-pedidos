@@ -155,7 +155,7 @@ describe("Authenticate User E2E", () => {
       });
 
     expect(response.status).toBe(401);
-    expect(response.body.message).toBe("Invalid credentials.");
+    expect(response.body.message).toBe("Invalid credentials");
     expect(response.body.token).toBeUndefined();
   });
 
@@ -178,7 +178,7 @@ describe("Authenticate User E2E", () => {
       });
 
     expect(response.status).toBe(401);
-    expect(response.body.message).toBe("Invalid credentials.");
+    expect(response.body.message).toBe("Invalid credentials");
     expect(response.body.token).toBeUndefined();
   });
 
@@ -203,8 +203,10 @@ describe("Authenticate User E2E", () => {
         password: "",
       });
 
-    expect(response.status).toBe(401);
-    expect(response.body.message).toBe("Invalid credentials.");
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+    expect(response.body.errors).toBeDefined();
+    expect(response.body.errors.length).toBeGreaterThan(0);
   });
 
   it("não deve autenticar com formato de email inválido", async () => {
