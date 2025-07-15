@@ -6,8 +6,8 @@ export interface AuditEvent {
 	resourceId?: string;
 	userId?: string;
 	userEmail?: string;
-	details?: any;
-	metadata?: any;
+	details?: Record<string, unknown>;
+	metadata?: Record<string, unknown>;
 }
 
 export class AuditService {
@@ -37,8 +37,8 @@ export class AuditService {
 		});
 	}
 
-	static orderCreated(orderId: string, userId: string, orderDetails: any) {
-		this.log({
+	static orderCreated(orderId: string, userId: string, orderDetails: Record<string, unknown>) {
+		AuditService.log({
 			action: "ORDER_CREATED",
 			resource: "order",
 			resourceId: orderId,
@@ -62,12 +62,54 @@ export class AuditService {
 		});
 	}
 
-	static dataExported(resource: string, userId: string, filters: any) {
-		this.log({
+	static dataExported(resource: string, userId: string, filters: Record<string, unknown>) {
+		AuditService.log({
 			action: "DATA_EXPORTED",
 			resource,
 			userId,
 			details: { filters },
+		});
+	}
+
+	static imageUploaded(publicId: string, userId: string, details: {
+		folder: string;
+		url: string;
+		size: number;
+		format: string;
+	}) {
+		this.log({
+			action: "IMAGE_UPLOADED",
+			resource: "image",
+			resourceId: publicId,
+			userId,
+			details,
+		});
+	}
+
+	static imageDeleted(publicId: string, userId?: string) {
+		this.log({
+			action: "IMAGE_DELETED",
+			resource: "image",
+			resourceId: publicId,
+			userId,
+		});
+	}
+
+	static uploadError(userId: string, error: string) {
+		this.log({
+			action: "UPLOAD_ERROR",
+			resource: "image",
+			userId,
+			details: { error },
+		});
+	}
+
+	static securityEvent(action: string, userId?: string, details?: Record<string, unknown>) {
+		AuditService.log({
+			action,
+			resource: "security",
+			userId,
+			details,
 		});
 	}
 }

@@ -1,7 +1,5 @@
 import { type Express, Router } from "express";
-import { validateAuthenticate } from "../middlewares/validateAuthenticate";
-import { validateJWT } from "../middlewares/validateJWT";
-import { validateRegister } from "../middlewares/validateRegister";
+import { validateAuthenticate, validateJWT, validateRegister } from "@/middlewares";
 import { authenticateController } from "./authenticateController";
 import { registerController } from "./registerController";
 import { usersController } from "./usersController";

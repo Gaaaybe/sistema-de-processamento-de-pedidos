@@ -62,6 +62,13 @@ const DOMAIN_TO_HTTP_MAP = new Map<string, HttpErrorMapping>([
 			message: "Insufficient balance",
 		},
 	],
+	[
+		"MulterError",
+		{
+			status: 400,
+			message: "File upload error",
+		},
+	],
 ]);
 
 export interface HttpError {
