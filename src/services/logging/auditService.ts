@@ -10,34 +10,34 @@ export interface AuditEvent {
 	metadata?: Record<string, unknown>;
 }
 
-export class AuditService {
-	static log(event: AuditEvent) {
+export const AuditService = {
+	log(event: AuditEvent) {
 		auditLogger.log("DOMAIN_EVENT", {
 			...event,
 			environment: process.env.NODE_ENV,
 		});
-	}
+	},
 
-	static userCreated(userId: string, userEmail: string, createdBy?: string) {
-		this.log({
+	userCreated(userId: string, userEmail: string, createdBy?: string) {
+		AuditService.log({
 			action: "USER_CREATED",
 			resource: "user",
 			resourceId: userId,
 			userId: createdBy,
 			details: { userEmail },
 		});
-	}
+	},
 
-	static userLogin(userId: string, userEmail: string, ip: string) {
-		this.log({
+	userLogin(userId: string, userEmail: string, ip: string) {
+		AuditService.log({
 			action: "USER_LOGIN",
 			resource: "auth",
 			userId,
 			details: { userEmail, ip },
 		});
-	}
+	},
 
-	static orderCreated(orderId: string, userId: string, orderDetails: Record<string, unknown>) {
+	orderCreated(orderId: string, userId: string, orderDetails: Record<string, unknown>) {
 		AuditService.log({
 			action: "ORDER_CREATED",
 			resource: "order",
@@ -45,71 +45,71 @@ export class AuditService {
 			userId,
 			details: orderDetails,
 		});
-	}
+	},
 
-	static orderStatusChanged(
+	orderStatusChanged(
 		orderId: string,
 		oldStatus: string,
 		newStatus: string,
 		userId: string,
 	) {
-		this.log({
+		AuditService.log({
 			action: "ORDER_STATUS_CHANGED",
 			resource: "order",
 			resourceId: orderId,
 			userId,
 			details: { oldStatus, newStatus },
 		});
-	}
+	},
 
-	static dataExported(resource: string, userId: string, filters: Record<string, unknown>) {
+	dataExported(resource: string, userId: string, filters: Record<string, unknown>) {
 		AuditService.log({
 			action: "DATA_EXPORTED",
 			resource,
 			userId,
 			details: { filters },
 		});
-	}
+	},
 
-	static imageUploaded(publicId: string, userId: string, details: {
+	imageUploaded(publicId: string, userId: string, details: {
 		folder: string;
 		url: string;
 		size: number;
 		format: string;
 	}) {
-		this.log({
+		AuditService.log({
 			action: "IMAGE_UPLOADED",
 			resource: "image",
 			resourceId: publicId,
 			userId,
 			details,
 		});
-	}
+	},
 
-	static imageDeleted(publicId: string, userId?: string) {
-		this.log({
+	imageDeleted(publicId: string, userId?: string) {
+		AuditService.log({
 			action: "IMAGE_DELETED",
 			resource: "image",
 			resourceId: publicId,
 			userId,
 		});
-	}
+	},
 
-	static uploadError(userId: string, error: string) {
-		this.log({
+	uploadError(userId: string, error: string) {
+		AuditService.log({
 			action: "UPLOAD_ERROR",
 			resource: "image",
 			userId,
 			details: { error },
 		});
-	}
+	},
 
-	static securityEvent(action: string, userId?: string, details?: Record<string, unknown>) {
+	securityEvent(action: string, userId?: string, details?: Record<string, unknown>) {
 		AuditService.log({
 			action,
 			resource: "security",
 			userId,
 			details,
 		});
-	}
-}
+	},
+};
