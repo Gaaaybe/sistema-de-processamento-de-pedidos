@@ -1,37 +1,14 @@
 import { cloudinary } from "@/lib/cloudinary";
 import { logger } from "@/lib/winston";
-import { ValidationError } from "./errors/domainErrors";
+import { ValidationError } from "../errors/domainErrors";
+import type { 
+	IUploadService, 
+	UploadServiceRequest, 
+	UploadServiceResponse,
+	CloudinaryUploadResult 
+} from "../interfaces";
 
-export interface CloudinaryUploadResult {
-	public_id: string;
-	secure_url: string;
-	width: number;
-	height: number;
-	format: string;
-	bytes: number;
-}
-
-interface UploadServiceRequest {
-	buffer: Buffer;
-	userId: string;
-	folder?: string;
-	maxWidth?: number;
-	maxHeight?: number;
-	quality?: string;
-}
-
-interface UploadServiceResponse {
-	imageUrl: string;
-	imagePublicId: string;
-	metadata: {
-		width: number;
-		height: number;
-		format: string;
-		bytes: number;
-	};
-}
-
-export class UploadService {
+export class UploadService implements IUploadService {
 	async execute({
 		buffer,
 		userId,
@@ -76,7 +53,7 @@ export class UploadService {
 				},
 			};
 		} catch (error) {
-			logger.error("Upload service error", { error, userId });
+			logger.error("Upload service error", { error: error instanceof Error ? error.message : error, userId });
 			throw new ValidationError("Failed to upload image");
 		}
 	}
@@ -117,7 +94,7 @@ export class UploadService {
 			await cloudinary.uploader.destroy(publicId);
 			logger.info("Image deleted successfully", { publicId });
 		} catch (error) {
-			logger.error("Error deleting image", { error, publicId });
+			logger.error("Error deleting image", { error: error instanceof Error ? error.message : error, publicId });
 			throw new ValidationError("Failed to delete image");
 		}
 	}
