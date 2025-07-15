@@ -1,5 +1,5 @@
-import { makeGetUserOrdersService } from "@/services/factories/makeGetUserOrdersService";
-import { asyncHandler } from "@/middlewares/errorHandler";
+import { makeGetUserOrdersService } from "@/services";
+import { asyncHandler } from "@/middlewares";
 import type { Request, Response } from "express";
 
 export const getUserOrdersController = asyncHandler(

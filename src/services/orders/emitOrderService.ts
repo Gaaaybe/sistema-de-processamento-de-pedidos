@@ -1,25 +1,18 @@
 import { logger } from "@/lib/winston";
 import { AuditService } from "@/services/logging/auditService";
-import type { Order } from "@prisma/client";
-import type { OrdersRepository } from "../repositories/ordersRepository";
-import { OrderAlreadyExistsError } from "./errors/domainErrors";
-import type { UploadService } from "./uploadService";
+import type { OrdersRepository } from "@/repositories/ordersRepository";
+import { OrderAlreadyExistsError } from "../errors/domainErrors";
+import type { 
+	IEmitOrderService, 
+	EmitOrderServiceRequest, 
+	EmitOrderServiceResponse,
+	IUploadService
+} from "../interfaces";
 
-interface EmitOrderServiceRequest {
-	userId: string;
-	title: string;
-	description?: string;
-	imageBuffer: Buffer;
-}
-
-interface EmitOrderServiceResponse {
-	order: Order;
-}
-
-export class EmitOrderService {
+export class EmitOrderService implements IEmitOrderService {
 	constructor(
 		private ordersRepository: OrdersRepository,
-		private uploadService: UploadService,
+		private uploadService: IUploadService,
 	) {}
 
 	async execute({

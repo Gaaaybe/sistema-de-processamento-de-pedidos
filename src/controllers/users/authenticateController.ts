@@ -1,6 +1,6 @@
 import { env } from "@/env/index";
-import { asyncHandler } from "@/middlewares/errorHandler";
-import { makeAuthenticateService } from "@/services/factories/makeAuthenticateService";
+import { asyncHandler } from "@/middlewares";
+import { makeAuthenticateService } from "@/services";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 

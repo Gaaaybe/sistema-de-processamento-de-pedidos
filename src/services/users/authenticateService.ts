@@ -2,27 +2,21 @@ import { logger } from "@/lib/winston";
 import type { UsersRepository } from "@/repositories/usersRepository";
 import { InvalidCredentialsError } from "@/services/errors/domainErrors";
 import { AuditService } from "@/services/logging/auditService";
-import type { User } from "@prisma/client";
-import { compare, hash } from "bcryptjs";
+import type { 
+	IAuthenticateService, 
+	AuthenticateServiceRequest, 
+	AuthenticateServiceResponse 
+} from "@/services/interfaces";
+import { compare } from "bcryptjs";
 
-interface AuthenticateRequest {
-	email: string;
-	password: string;
-	ip?: string;
-}
-
-interface AuthenticateResponse {
-	user: User;
-}
-
-export class AuthenticateService {
+export class AuthenticateService implements IAuthenticateService {
 	constructor(private userRepository: UsersRepository) {}
 
 	async execute({
 		email,
 		password,
 		ip = "127.0.0.1",
-	}: AuthenticateRequest): Promise<AuthenticateResponse> {
+	}: AuthenticateServiceRequest): Promise<AuthenticateServiceResponse> {
 		logger.info("Starting user authentication", { email });
 
 		const user = await this.userRepository.findByEmail(email);

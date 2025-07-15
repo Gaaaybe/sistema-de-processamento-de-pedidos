@@ -1,17 +1,12 @@
-import type { Order } from "@prisma/client";
-import type { OrdersRepository } from "../repositories/ordersRepository";
+import type { OrdersRepository } from "@/repositories/ordersRepository";
 import { logger } from "@/lib/winston";
+import type { 
+	IGetUserOrdersService, 
+	GetUserOrdersServiceRequest, 
+	GetUserOrdersServiceResponse 
+} from "../interfaces";
 
-
-interface GetUserOrdersServiceRequest {
-    userId: string;
-}
-
-interface GetUserOrdersServiceResponse {
-  orders: Order[];
-}
-
-export class GetUserOrdersService {
+export class GetUserOrdersService implements IGetUserOrdersService {
     constructor(private ordersRepository: OrdersRepository) {}
     async execute({
         userId,

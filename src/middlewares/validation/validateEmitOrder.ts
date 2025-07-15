@@ -1,4 +1,4 @@
-import { emitOrderRequestSchema } from "@/schemas/orderSquemas";
+import { emitOrderRequestSchema } from "@/schemas/orderSchemas";
 import type { Request, Response, NextFunction } from "express";
 
 export const validateEmitOrder = (

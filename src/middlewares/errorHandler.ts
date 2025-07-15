@@ -121,10 +121,13 @@ const errorHandlers = new Map<string, (error: unknown) => ErrorHandlerResult>([
 
 	[
 		"ValidationError",
-		() => ({
-			statusCode: 400,
-			message: "Validation error",
-		}),
+		(error: unknown) => {
+			const validationError = error as DomainError;
+			return {
+				statusCode: 400,
+				message: validationError.message,
+			};
+		},
 	],
 
 	[
@@ -188,12 +191,14 @@ export function globalErrorHandler(
 
 	const errorResponse = createErrorResponse(message, statusCode, req, errors);
 
-	if (env.NODE_ENV === "dev" && statusCode >= 500) {
+	// Remover informações sensíveis em produção
+	if (env.NODE_ENV === "production") {
+		if (statusCode >= 500) {
+			errorResponse.message = "Internal server error";
+		}
+		// Nunca incluir stack trace em produção
+	} else if (env.NODE_ENV === "dev" && statusCode >= 500) {
 		errorResponse.stack = error.stack;
-	}
-
-	if (env.NODE_ENV === "production" && statusCode >= 500) {
-		errorResponse.message = "Internal server error";
 	}
 
 	res.status(statusCode).json(errorResponse);

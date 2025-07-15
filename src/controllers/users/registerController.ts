@@ -1,5 +1,5 @@
-import { asyncHandler } from "@/middlewares/errorHandler";
-import { makeRegisterService } from "@/services/factories/makeRegisterService";
+import { asyncHandler } from "@/middlewares";
+import { makeRegisterService } from "@/services";
 import type { Request, Response } from "express";
 
 export const registerController = asyncHandler(

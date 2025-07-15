@@ -1,22 +1,15 @@
 import { logger } from "@/lib/winston";
 import { UserAlreadyExistsError } from "@/services/errors/domainErrors";
 import { AuditService } from "@/services/logging/auditService";
-import type { Role, User } from "@prisma/client";
+import type { 
+	IRegisterService, 
+	RegisterServiceRequest, 
+	RegisterServiceResponse 
+} from "@/services/interfaces";
 import { hash } from "bcryptjs";
-import type { UsersRepository } from "../repositories/usersRepository";
+import type { UsersRepository } from "@/repositories/usersRepository";
 
-interface RegisterServiceRequest {
-	name: string;
-	email: string;
-	password: string;
-	role: Role;
-}
-
-interface RegisterServiceResponse {
-	user: User;
-}
-
-export class RegisterService {
+export class RegisterService implements IRegisterService {
 	constructor(private usersRepository: UsersRepository) {}
 
 	async execute({
