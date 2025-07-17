@@ -60,17 +60,14 @@ export function smartAuditMiddleware(
 	res: Response,
 	next: NextFunction,
 ) {
-	// Rotas que NÃO precisam de auditoria
 	const skipRoutes = ["/health", "/metrics", "/favicon.ico", "/api-docs"];
 
 	if (skipRoutes.some((route) => req.path.startsWith(route))) {
 		return next();
 	}
 
-	// Métodos que sempre auditamos
 	const auditMethods = ["POST", "PUT", "DELETE", "PATCH"];
 
-	// Rotas sensíveis (mesmo GET)
 	const sensitiveRoutes = ["/admin", "/users/export", "/orders/report"];
 
 	const shouldAudit =

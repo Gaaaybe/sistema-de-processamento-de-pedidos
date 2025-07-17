@@ -36,7 +36,6 @@ describe("Register User E2E", () => {
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se foi salvo no banco
 			const user = await prisma.user.findUnique({
 				where: { email: "gabriel.admin@email.com" }
 			});
@@ -56,7 +55,6 @@ describe("Register User E2E", () => {
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se foi salvo no banco
 			const user = await prisma.user.findUnique({
 				where: { email: "joao.user@email.com" }
 			});
@@ -82,9 +80,7 @@ describe("Register User E2E", () => {
 			});
 
 			expect(user).toBeTruthy();
-			// Verificar se a senha foi hash-eada
 			expect(user?.password_hash).not.toBe(password);
-			// Verificar se o hash é válido
 			const isValidHash = await bcrypt.compare(password, user?.password_hash || "");
 			expect(isValidHash).toBe(true);
 		});
@@ -158,7 +154,6 @@ describe("Register User E2E", () => {
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se o usuário foi criado com role 'user'
 			const user = await prisma.user.findUnique({
 				where: { email: "teste.role@email.com" }
 			});
@@ -314,7 +309,6 @@ describe("Register User E2E", () => {
 
 	describe("Casos de duplicação", () => {
 		it("não deve registrar usuário com email duplicado", async () => {
-			// Primeiro usuário
 			await prisma.user.create({
 				data: {
 					name: "Gabriel",
@@ -324,7 +318,6 @@ describe("Register User E2E", () => {
 				},
 			});
 
-			// Tentativa de registrar com mesmo email
 			const response = await request(app).post("/users").send({
 				name: "Outro Gabriel",
 				email: "gabriel@email.com",
@@ -337,7 +330,6 @@ describe("Register User E2E", () => {
 		});
 
 		it("deve permitir usuários com nomes iguais mas emails diferentes", async () => {
-			// Primeiro usuário
 			await request(app).post("/users").send({
 				name: "João Silva",
 				email: "joao1@email.com",
@@ -345,7 +337,6 @@ describe("Register User E2E", () => {
 				role: "user",
 			});
 
-			// Segundo usuário com mesmo nome
 			const response = await request(app).post("/users").send({
 				name: "João Silva",
 				email: "joao2@email.com",

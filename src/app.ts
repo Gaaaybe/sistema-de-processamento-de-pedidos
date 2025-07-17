@@ -93,7 +93,6 @@ if (env.NODE_ENV !== "production") {
 	console.log("📖 Docs on: http://localhost:3001/api-docs");
 }
 
-// Health check endpoint
 app.get("/health", (req, res) => {
 	res.status(200).json({
 		status: "ok",

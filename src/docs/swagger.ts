@@ -1,4 +1,3 @@
-// Configuração manual do OpenAPI/Swagger
 export const openApiDocument = {
 	openapi: "3.0.0",
 	info: {
@@ -277,7 +276,6 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 					$ref: "#/components/schemas/UserData",
 				},
 			},
-			// Orders Schemas
 			EmitOrderRequest: {
 				type: "object",
 				required: ["title", "description", "image"],

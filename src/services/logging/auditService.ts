@@ -112,4 +112,32 @@ export const AuditService = {
 			details,
 		});
 	},
+
+	emailQueued(jobId: string, type: string, userId?: string) {
+		AuditService.log({
+			action: "EMAIL_QUEUED",
+			resource: "email",
+			resourceId: jobId,
+			userId,
+			details: { type },
+		});
+	},
+
+	emailSent(jobId: string, type: string, email: string, messageId: string) {
+		AuditService.log({
+			action: "EMAIL_SENT",
+			resource: "email",
+			resourceId: jobId,
+			details: { type, email, messageId },
+		});
+	},
+
+	emailFailed(jobId: string, type: string, email: string, error: string) {
+		AuditService.log({
+			action: "EMAIL_FAILED",
+			resource: "email",
+			resourceId: jobId,
+			details: { type, email, error },
+		});
+	},
 };
