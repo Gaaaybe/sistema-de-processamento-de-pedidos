@@ -8,7 +8,6 @@ export const validateAuthenticate = (
 ) => {
 	const result = authenticateRequestSchema.safeParse(req.body);
 	if (!result.success) {
-		// Passa o erro ZodError para o middleware global
 		return next(result.error);
 	}
 	next();
