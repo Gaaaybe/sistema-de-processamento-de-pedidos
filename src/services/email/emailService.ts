@@ -31,6 +31,7 @@ export class EmailService implements IEmailService {
       subject: `Pedido ${data.orderId} criado com sucesso!`,
       html: `
         <h1>Pedido Criado com Sucesso!</h1>
+        <p>Olá, ${data.userName}!</p>
         <p>Seu pedido foi criado com sucesso e está sendo processado.</p>
         <h2>Detalhes do Pedido:</h2>
         <ul>
@@ -39,11 +40,12 @@ export class EmailService implements IEmailService {
           <li><strong>Descrição:</strong> ${data.description}</li>
           <li><strong>Status:</strong> ${data.status}</li>
         </ul>
+        ${data.imageUrl ? `<p><strong>Imagem:</strong> <a href="${data.imageUrl}">Ver imagem</a></p>` : ''}
         <p>Você receberá atualizações sobre o status do seu pedido.</p>
         <hr>
         <p>Equipe Sistema de Pedidos</p>
       `,
-      text: `Pedido ${data.orderId} criado com sucesso! Título: ${data.title}, Status: ${data.status}`
+      text: `Olá, ${data.userName}! Pedido ${data.orderId} criado com sucesso! Título: ${data.title}, Status: ${data.status}`
     }),
     
     'password-reset': (data) => ({

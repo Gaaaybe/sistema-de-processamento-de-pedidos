@@ -12,6 +12,16 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    container_name: redis-sistemas-pedidos
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
   app:
     build: .
     command: sh -c "npx prisma migrate deploy && npm run start:dev"
@@ -24,11 +34,17 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - DATABASE_URL=postgres://postgres:1234@postgres:5432/sistemas-pedidos-comprovantes
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     links:
       - postgres
+      - redis
     depends_on:
       - postgres
+      - redis
 
 volumes:
   data:
+    driver: local
+  redis_data:
     driver: local
