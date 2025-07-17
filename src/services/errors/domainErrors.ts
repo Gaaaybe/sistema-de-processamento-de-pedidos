@@ -63,3 +63,35 @@ export class OrderAlreadyExistsError extends DomainError {
 		super(message);
 	}
 }
+
+export class EmailQueueError extends DomainError {
+	readonly code = "EMAIL_QUEUE_ERROR";
+
+	constructor(message = "Email queue error") {
+		super(message);
+	}
+}
+
+export class EmailServiceError extends DomainError {
+	readonly code = "EMAIL_SERVICE_ERROR";
+
+	constructor(message = "Email service error") {
+		super(message);
+	}
+}
+
+export class EmailTemplateError extends DomainError {
+	readonly code = "EMAIL_TEMPLATE_ERROR";
+
+	constructor(message = "Email template error") {
+		super(message);
+	}
+}
+
+export class EmailProviderError extends DomainError {
+	readonly code = "EMAIL_PROVIDER_ERROR";
+
+	constructor(message = "Email provider error") {
+		super(message);
+	}
+}

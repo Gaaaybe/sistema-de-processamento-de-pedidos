@@ -101,7 +101,6 @@ export class EmailQueueService implements IEmailQueueService {
     });
   }
 
-  // Métodos de monitoramento
   async getQueueStats() {
     try {
       const waiting = await emailQueue.getWaiting();

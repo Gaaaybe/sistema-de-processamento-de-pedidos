@@ -17,11 +17,12 @@ export const emitOrderController = asyncHandler(async (req: Request, res: Respon
   });
 
   return res.status(201).json({
-    message: "Order created successfully",
+    message: "Order submitted successfully and is being processed",
     order: {
       id: order.id,
       title: order.title,
       userId: order.userId,
+      status: order.status,
     },
   });
 });

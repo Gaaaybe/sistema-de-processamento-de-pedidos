@@ -14,7 +14,6 @@ describe("GetUserOrdersService", () => {
 
     describe("Happy Path", () => {
         it("should get user orders when user has orders", async () => {
-            // Arrange
             const userId = "user-123";
             await ordersRepository.create({
                 userId,
@@ -31,10 +30,8 @@ describe("GetUserOrdersService", () => {
                 imageUrl: "https://example.com/image2.jpg",
             });
 
-            // Act
             const { orders } = await sut.execute({ userId });
 
-            // Assert
             expect(orders).toHaveLength(2);
             expect(orders[0].title).toBe("Order 1");
             expect(orders[1].title).toBe("Order 2");
@@ -43,13 +40,10 @@ describe("GetUserOrdersService", () => {
         });
 
         it("should return empty array when user has no orders", async () => {
-            // Arrange
             const userId = "user-456";
 
-            // Act
             const { orders } = await sut.execute({ userId });
 
-            // Assert
             expect(orders).toHaveLength(0);
             expect(orders).toEqual([]);
         });
@@ -57,11 +51,9 @@ describe("GetUserOrdersService", () => {
 
     describe("Error Cases", () => {
         it("should handle repository errors gracefully", async () => {
-            // Arrange
             const userId = "user-123";
             vi.spyOn(ordersRepository, 'findManyByUser').mockRejectedValue(new Error("Database error"));
 
-            // Act & Assert
             await expect(sut.execute({ userId })).rejects.toThrow("Database error");
         });
     });

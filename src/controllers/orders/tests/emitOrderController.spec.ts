@@ -77,11 +77,12 @@ describe("Emit Order Controller E2E", () => {
       .attach("image", testImageBuffer, "test-image.png");
 
     expect(response.status).toBe(201);
-    expect(response.body.message).toBe("Order created successfully");
+    expect(response.body.message).toBe("Order submitted successfully and is being processed");
     expect(response.body.order).toMatchObject({
       id: expect.any(String),
       title: "Pedido de Teste",
       userId: userId,
+      status: "pending",
     });
     const orderInDb = await prisma.order.findFirst({
       where: { userId },
@@ -204,7 +205,7 @@ describe("Emit Order Controller E2E", () => {
       .attach("image", testImageBuffer, "test-image.png");
 
     expect(response.status).toBe(201);
-    expect(response.body.message).toBe("Order created successfully");
+    expect(response.body.message).toBe("Order submitted successfully and is being processed");
     const ordersCount = await prisma.order.count({
       where: { userId },
     });
