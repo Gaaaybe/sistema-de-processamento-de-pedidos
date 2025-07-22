@@ -35,7 +35,6 @@ describe("UploadService", () => {
 
   describe("Happy Path", () => {
     it("should upload image successfully when data is valid", async () => {
-      // Arrange
       const mockResult = {
         secure_url: "https://cloudinary.com/test-image.jpg",
         public_id: "test-public-id",
@@ -57,10 +56,8 @@ describe("UploadService", () => {
         folder: "orders",
       };
 
-      // Act
       const result = await sut.execute(uploadData);
 
-      // Assert
       expect(result).toBeDefined();
       expect(result.imageUrl).toBe("https://cloudinary.com/test-image.jpg");
       expect(result.imagePublicId).toBe("test-public-id");
@@ -73,22 +70,18 @@ describe("UploadService", () => {
     });
 
     it("should delete image successfully when public_id is valid", async () => {
-      // Arrange
       (cloudinary.uploader.destroy as ReturnType<typeof vi.fn>).mockResolvedValue({ result: "ok" });
 
       const publicId = "test-public-id";
 
-      // Act
       await sut.deleteImage(publicId);
 
-      // Assert
       expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(publicId);
     });
   });
 
   describe("Error Cases", () => {
     it("should handle cloudinary upload errors", async () => {
-      // Arrange
       const error = new Error("Cloudinary upload failed");
       (cloudinary.uploader.upload_stream as ReturnType<typeof vi.fn>)
         .mockImplementation((options: unknown, callback: (error: Error | null, result: unknown) => void) => {
@@ -102,18 +95,15 @@ describe("UploadService", () => {
         folder: "orders",
       };
 
-      // Act & Assert
       await expect(sut.execute(uploadData)).rejects.toThrow("Failed to upload image");
     });
 
     it("should handle cloudinary delete errors", async () => {
-      // Arrange
       const error = new Error("Cloudinary delete failed");
       (cloudinary.uploader.destroy as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
       const publicId = "test-public-id";
 
-      // Act & Assert
       await expect(sut.deleteImage(publicId)).rejects.toThrow("Failed to delete image");
     });
   });

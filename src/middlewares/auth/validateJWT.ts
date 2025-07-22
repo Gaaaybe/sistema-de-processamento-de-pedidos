@@ -19,16 +19,14 @@ export const validateJWT = (requiredRole?: Role) => {
 				sub: string;
 			};
 
-			req.user = { id: decoded.sub, role: decoded.role }; // Adiciona o usuário decodificado ao request
+			req.user = { id: decoded.sub, role: decoded.role };
 
-			// Verifica a role, se necessário
 			if (requiredRole && decoded.role !== requiredRole) {
 				return next(new UnauthorizedError("Access Denied"));
 			}
 
 			next();
 		} catch (error) {
-			// JWT errors serão tratados pelo middleware global
 			next(error);
 		}
 	};

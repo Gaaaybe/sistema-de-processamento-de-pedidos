@@ -1,4 +1,3 @@
-// Configuração manual do OpenAPI/Swagger
 export const openApiDocument = {
 	openapi: "3.0.0",
 	info: {
@@ -254,30 +253,6 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 					},
 				},
 			},
-			UsersListResponse: {
-				type: "array",
-				description: "Lista de usuários do sistema",
-				example: [
-					{
-						id: "550e8400-e29b-41d4-a716-446655440000",
-						name: "João Silva",
-						email: "joao@exemplo.com",
-						role: "user",
-						createdAt: "2025-07-07T10:30:00.000Z",
-					},
-					{
-						id: "550e8400-e29b-41d4-a716-446655440001",
-						name: "Admin User",
-						email: "admin@exemplo.com",
-						role: "admin",
-						createdAt: "2025-07-06T15:45:00.000Z",
-					},
-				],
-				items: {
-					$ref: "#/components/schemas/UserData",
-				},
-			},
-			// Orders Schemas
 			EmitOrderRequest: {
 				type: "object",
 				required: ["title", "description", "image"],
@@ -408,6 +383,49 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 					},
 				},
 			},
+			OrderData: {
+				type: "object",
+				properties: {
+					id: {
+						type: "string",
+						description: "ID único do pedido",
+						example: "order-uuid-123",
+					},
+					title: {
+						type: "string",
+						description: "Título do pedido",
+						example: "Pedido de Teste",
+					},
+					description: {
+						type: "string",
+						description: "Descrição do pedido",
+						example: "Descrição detalhada do pedido",
+					},
+					status: {
+						type: "string",
+						enum: ["pending", "approved", "rejected", "processing"],
+						description: "Status atual do pedido",
+						example: "pending",
+					},
+					imageUrl: {
+						type: "string",
+						format: "uri",
+						description: "URL da imagem do pedido",
+						example: "https://res.cloudinary.com/demo/image/upload/v1234567890/orders/abc123.jpg",
+					},
+					userId: {
+						type: "string",
+						description: "ID do usuário proprietário do pedido",
+						example: "user-uuid-456",
+					},
+					createdAt: {
+						type: "string",
+						format: "date-time",
+						description: "Data de criação do pedido",
+						example: "2025-07-22T10:30:00.000Z",
+					},
+				},
+			},
 		},
 	},
 	paths: {
@@ -468,45 +486,6 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 					},
 				},
 			},
-			get: {
-				tags: ["Users"],
-				summary: "Listar usuários (Admin)",
-				description:
-					"Lista todos os usuários do sistema. Requer permissão de administrador.",
-				security: [{ bearerAuth: [] }],
-				responses: {
-					"200": {
-						description: "Lista de usuários",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/UsersListResponse",
-								},
-							},
-						},
-					},
-					"401": {
-						description: "Token não fornecido ou inválido",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/UnauthorizedErrorResponse",
-								},
-							},
-						},
-					},
-					"403": {
-						description: "Acesso negado - apenas administradores",
-						content: {
-							"application/json": {
-								schema: {
-									$ref: "#/components/schemas/UnauthorizedErrorResponse",
-								},
-							},
-						},
-					},
-				},
-			},
 		},
 		"/users/authenticate": {
 			post: {
@@ -558,6 +537,46 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 			},
 		},
 		"/orders": {
+			get: {
+				tags: ["Orders"],
+				summary: "Listar pedidos do usuário",
+				description: "Lista todos os pedidos do usuário autenticado",
+				security: [{ bearerAuth: [] }],
+				responses: {
+					"200": {
+						description: "Lista de pedidos do usuário",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										message: {
+											type: "string",
+											example: "Orders retrieved successfully"
+										},
+										orders: {
+											type: "array",
+											items: {
+												$ref: "#/components/schemas/OrderData"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						description: "Token não fornecido ou inválido",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/UnauthorizedErrorResponse",
+								},
+							},
+						},
+					},
+				},
+			},
 			post: {
 				tags: ["Orders"],
 				summary: "Criar novo pedido",

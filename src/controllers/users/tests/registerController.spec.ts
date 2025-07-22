@@ -25,24 +25,23 @@ describe("Register User E2E", () => {
 	});
 
 	describe("Casos de sucesso", () => {
-		it("deve registrar um novo usuário admin", async () => {
+		it("deve registrar um novo usuário user", async () => {
 			const response = await request(app).post("/users").send({
-				name: "Gabriel Admin",
-				email: "gabriel.admin@email.com",
+				name: "João User",
+				email: "joao.user@email.com",
 				password: "senha123aA",
-				role: "admin",
+				role: "user",
 			});
 
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se foi salvo no banco
 			const user = await prisma.user.findUnique({
-				where: { email: "gabriel.admin@email.com" }
+				where: { email: "joao.user@email.com" }
 			});
 			expect(user).toBeTruthy();
-			expect(user?.name).toBe("Gabriel Admin");
-			expect(user?.role).toBe("admin");
+			expect(user?.name).toBe("João User");
+			expect(user?.role).toBe("user");
 		});
 
 		it("deve registrar um novo usuário user", async () => {
@@ -56,7 +55,6 @@ describe("Register User E2E", () => {
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se foi salvo no banco
 			const user = await prisma.user.findUnique({
 				where: { email: "joao.user@email.com" }
 			});
@@ -82,9 +80,7 @@ describe("Register User E2E", () => {
 			});
 
 			expect(user).toBeTruthy();
-			// Verificar se a senha foi hash-eada
 			expect(user?.password_hash).not.toBe(password);
-			// Verificar se o hash é válido
 			const isValidHash = await bcrypt.compare(password, user?.password_hash || "");
 			expect(isValidHash).toBe(true);
 		});
@@ -158,7 +154,6 @@ describe("Register User E2E", () => {
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
-			// Verificar se o usuário foi criado com role 'user'
 			const user = await prisma.user.findUnique({
 				where: { email: "teste.role@email.com" }
 			});
@@ -310,11 +305,30 @@ describe("Register User E2E", () => {
 				])
 			);
 		});
+
+		it("não deve permitir registro de usuário admin", async () => {
+			const response = await request(app).post("/users").send({
+				name: "Admin Test",
+				email: "admin@email.com",
+				password: "senha123aA",
+				role: "admin",
+			});
+
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Validation failed");
+			expect(response.body.errors).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						field: "role",
+						message: expect.stringContaining("Invalid enum value")
+					})
+				])
+			);
+		});
 	});
 
 	describe("Casos de duplicação", () => {
 		it("não deve registrar usuário com email duplicado", async () => {
-			// Primeiro usuário
 			await prisma.user.create({
 				data: {
 					name: "Gabriel",
@@ -324,7 +338,6 @@ describe("Register User E2E", () => {
 				},
 			});
 
-			// Tentativa de registrar com mesmo email
 			const response = await request(app).post("/users").send({
 				name: "Outro Gabriel",
 				email: "gabriel@email.com",
@@ -336,26 +349,24 @@ describe("Register User E2E", () => {
 			expect(response.body.message).toMatch(/already exists/i);
 		});
 
-		it("deve permitir usuários com nomes iguais mas emails diferentes", async () => {
-			// Primeiro usuário
-			await request(app).post("/users").send({
-				name: "João Silva",
-				email: "joao1@email.com",
-				password: "senha123aA",
-				role: "user",
-			});
-
-			// Segundo usuário com mesmo nome
-			const response = await request(app).post("/users").send({
-				name: "João Silva",
-				email: "joao2@email.com",
-				password: "senha123aA",
-				role: "admin",
-			});
-
-			expect(response.status).toBe(201);
-			expect(response.body.message).toBe("User registered successfully");
+	it("deve permitir usuários com nomes iguais mas emails diferentes", async () => {
+		await request(app).post("/users").send({
+			name: "João Silva",
+			email: "joao1@email.com",
+			password: "senha123aA",
+			role: "user",
 		});
+
+		const response = await request(app).post("/users").send({
+			name: "João Silva",
+			email: "joao2@email.com",
+			password: "senha123aA",
+			role: "user",
+		});
+
+		expect(response.status).toBe(201);
+		expect(response.body.message).toBe("User registered successfully");
+	});
 	});
 
 	describe("Casos de body malformado", () => {

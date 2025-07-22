@@ -153,6 +153,38 @@ const errorHandlers = new Map<string, (error: unknown) => ErrorHandlerResult>([
 			};
 		},
 	],
+
+	[
+		"EmailQueueError",
+		() => ({
+			statusCode: 503,
+			message: "Email service temporarily unavailable. Please try again later.",
+		}),
+	],
+
+	[
+		"EmailServiceError",
+		() => ({
+			statusCode: 503,
+			message: "Email service temporarily unavailable. Please try again later.",
+		}),
+	],
+
+	[
+		"EmailTemplateError",
+		() => ({
+			statusCode: 503,
+			message: "Email service temporarily unavailable. Please try again later.",
+		}),
+	],
+
+	[
+		"EmailProviderError",
+		() => ({
+			statusCode: 503,
+			message: "Email service temporarily unavailable. Please try again later.",
+		}),
+	],
 ]);
 
 export function globalErrorHandler(
@@ -191,12 +223,10 @@ export function globalErrorHandler(
 
 	const errorResponse = createErrorResponse(message, statusCode, req, errors);
 
-	// Remover informações sensíveis em produção
 	if (env.NODE_ENV === "production") {
 		if (statusCode >= 500) {
 			errorResponse.message = "Internal server error";
 		}
-		// Nunca incluir stack trace em produção
 	} else if (env.NODE_ENV === "dev" && statusCode >= 500) {
 		errorResponse.stack = error.stack;
 	}

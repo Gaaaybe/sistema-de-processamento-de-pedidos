@@ -232,7 +232,6 @@ describe("Get User Orders E2E", () => {
       const user = await createTestUser("user@test.com");
       const token = generateToken(user.id);
 
-      // Criar 50 pedidos
       const ordersData = Array.from({ length: 50 }, (_, i) => ({
         title: `Pedido ${i + 1}`,
         description: `Descrição do pedido ${i + 1}`,

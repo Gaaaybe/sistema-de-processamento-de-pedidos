@@ -5,6 +5,7 @@ export * from "./interfaces";
 export * from "./users";
 export * from "./orders";
 export * from "./shared";
+export * from "./email";
 
 // Service Factories
 export * from "./factories";

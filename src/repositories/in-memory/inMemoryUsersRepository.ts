@@ -10,9 +10,14 @@ export class InMemoryUsersRepository implements UsersRepository {
 		return user || null;
 	}
 
+	async findById(id: string) {
+		const user = this.items.find((user) => user.id === id);
+		return user || null;
+	}
+
 	async create(data: Prisma.UserCreateInput) {
 		const user = {
-			id: randomUUID(),
+			id: data.id ?? randomUUID(),
 			name: data.name,
 			email: data.email,
 			password_hash: data.password_hash,

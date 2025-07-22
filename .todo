@@ -5,7 +5,7 @@
 
   * [x] API Node.js
   * [x] Banco de dados PostgreSQL
-  * [ ] Redis
+  * [x] Redis
   * [ ] NGINX como proxy reverso
 * [x] Configurar TypeScript no projeto
 
@@ -25,7 +25,6 @@
 * [x] Modelo Order com Prisma
 * [x] Endpoint para criar pedidos com imagem (com upload) — `POST /orders`
 * [x] Endpoint para listar pedidos do usuário — `GET /orders`
-* [ ] Endpoint para visualizar um pedido específico — `GET /orders/:id`
 
 ---
 
@@ -39,22 +38,19 @@
 
 ## 📬 **5. Envio de E-mails (Nodemailer)**
 
-* [ ] Configurar serviço de e-mail
-* [ ] Criar templates para:
-  * [ ] Pedido recebido
-  * [ ] Pedido aprovado/rejeitado
-* [ ] Criar serviço de envio de e-mail reutilizável
+* [x] Configurar serviço de e-mail
+* [x] Criar templates para:
+  * [x] Pedido recebido
+  * [x] Pedido aprovado/rejeitado
+* [x] Criar serviço de envio de e-mail reutilizável
 
 ---
 
 ## 🧵 **6. Fila com BullMQ**
 
-* [ ] Configurar BullMQ e Redis
-* [ ] Criar job `processOrder`
-* [ ] Redimensionar imagem (opcional)
-* [ ] Alterar status do pedido para `processing`
-* [ ] Enviar email de confirmação
-* [ ] Marcar como `approved` ou `rejected` automaticamente (simulação)
+* [x] Configurar BullMQ e Redis
+* [x] Enviar email de confirmação
+* [x] Marcar como `approved` ou `rejected` automaticamente (simulação)
 
 ---
 
