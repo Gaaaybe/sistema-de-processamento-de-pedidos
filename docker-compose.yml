@@ -11,6 +11,12 @@ services:
       - ./data:/data/postgres
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sistemas-pedidos-comprovantes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   redis:
     container_name: redis-sistemas-pedidos
@@ -21,6 +27,12 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   app:
     build: .
@@ -40,8 +52,10 @@ services:
       - postgres
       - redis
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   data:

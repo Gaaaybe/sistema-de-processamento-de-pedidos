@@ -10,7 +10,7 @@ export const registerRequestSchema = z
 			.regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
 			.regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
 			.regex(/[0-9]/, "Deve conter ao menos um número"),
-		role: z.enum(["admin", "user"]).default("user"),
+		role: z.enum(["user"]).default("user"),
 	})
 	.strict();
 

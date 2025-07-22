@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserAlreadyExistsError } from "@/services/errors/domainErrors";
+import { UserAlreadyExistsError, AdminRegistrationNotAllowedError } from "@/services/errors/domainErrors";
 import { InMemoryUsersRepository } from "@/repositories/in-memory/inMemoryUsersRepository";
 import { RegisterService } from "@/services/users/registerService";
 import { createUser, createRegisterRequest } from "../utils";
@@ -45,7 +45,7 @@ describe("RegisterService", () => {
 			expect(result.user.role).toBe("user");
 		});
 
-		it("should register user with admin role when valid data is provided", async () => {
+		it("should throw error when trying to register admin user", async () => {
 			const registerRequest = createRegisterRequest({
 				name: "Admin User",
 				email: "admin@example.com",
@@ -53,12 +53,7 @@ describe("RegisterService", () => {
 				role: "admin"
 			});
 
-			const result = await sut.execute(registerRequest);
-
-			expect(result).toBeDefined();
-			expect(result.user).toHaveProperty("id");
-			expect(result.user.email).toBe("admin@example.com");
-			expect(result.user.role).toBe("admin");
+			await expect(sut.execute(registerRequest)).rejects.toThrow(AdminRegistrationNotAllowedError);
 		});
 
 		it("should hash password when registering user", async () => {

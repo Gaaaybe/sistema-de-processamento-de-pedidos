@@ -25,23 +25,23 @@ describe("Register User E2E", () => {
 	});
 
 	describe("Casos de sucesso", () => {
-		it("deve registrar um novo usuário admin", async () => {
+		it("deve registrar um novo usuário user", async () => {
 			const response = await request(app).post("/users").send({
-				name: "Gabriel Admin",
-				email: "gabriel.admin@email.com",
+				name: "João User",
+				email: "joao.user@email.com",
 				password: "senha123aA",
-				role: "admin",
+				role: "user",
 			});
 
 			expect(response.status).toBe(201);
 			expect(response.body.message).toBe("User registered successfully");
 
 			const user = await prisma.user.findUnique({
-				where: { email: "gabriel.admin@email.com" }
+				where: { email: "joao.user@email.com" }
 			});
 			expect(user).toBeTruthy();
-			expect(user?.name).toBe("Gabriel Admin");
-			expect(user?.role).toBe("admin");
+			expect(user?.name).toBe("João User");
+			expect(user?.role).toBe("user");
 		});
 
 		it("deve registrar um novo usuário user", async () => {
@@ -305,6 +305,26 @@ describe("Register User E2E", () => {
 				])
 			);
 		});
+
+		it("não deve permitir registro de usuário admin", async () => {
+			const response = await request(app).post("/users").send({
+				name: "Admin Test",
+				email: "admin@email.com",
+				password: "senha123aA",
+				role: "admin",
+			});
+
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Validation failed");
+			expect(response.body.errors).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						field: "role",
+						message: expect.stringContaining("Invalid enum value")
+					})
+				])
+			);
+		});
 	});
 
 	describe("Casos de duplicação", () => {
@@ -329,24 +349,24 @@ describe("Register User E2E", () => {
 			expect(response.body.message).toMatch(/already exists/i);
 		});
 
-		it("deve permitir usuários com nomes iguais mas emails diferentes", async () => {
-			await request(app).post("/users").send({
-				name: "João Silva",
-				email: "joao1@email.com",
-				password: "senha123aA",
-				role: "user",
-			});
-
-			const response = await request(app).post("/users").send({
-				name: "João Silva",
-				email: "joao2@email.com",
-				password: "senha123aA",
-				role: "admin",
-			});
-
-			expect(response.status).toBe(201);
-			expect(response.body.message).toBe("User registered successfully");
+	it("deve permitir usuários com nomes iguais mas emails diferentes", async () => {
+		await request(app).post("/users").send({
+			name: "João Silva",
+			email: "joao1@email.com",
+			password: "senha123aA",
+			role: "user",
 		});
+
+		const response = await request(app).post("/users").send({
+			name: "João Silva",
+			email: "joao2@email.com",
+			password: "senha123aA",
+			role: "user",
+		});
+
+		expect(response.status).toBe(201);
+		expect(response.body.message).toBe("User registered successfully");
+	});
 	});
 
 	describe("Casos de body malformado", () => {

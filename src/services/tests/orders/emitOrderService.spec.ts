@@ -6,13 +6,25 @@ import { InMemoryUsersRepository } from "@/repositories/in-memory/inMemoryUsersR
 import type { IUploadService, IEmailQueueService } from "@/services/interfaces";
 import { createUploadServiceMock } from "../utils";
 
+// Mock do AdminService
+vi.mock("@/services/shared/adminService", () => ({
+	AdminService: {
+		getAdminInfo: vi.fn().mockResolvedValue({
+			id: "admin-123",
+			email: "admin@example.com",
+			name: "Admin User",
+			role: "admin"
+		})
+	}
+}));
+
 const mockEmailQueueService: IEmailQueueService = {
 	execute: vi.fn().mockResolvedValue({ jobId: "job-123", success: true }),
-	sendWelcomeEmail: vi.fn(),
-	sendOrderConfirmation: vi.fn(),
-	sendPasswordReset: vi.fn(),
-	sendAdminNotification: vi.fn(),
-	scheduleEmail: vi.fn(),
+	sendWelcomeEmail: vi.fn().mockResolvedValue({ jobId: "welcome-job-123", success: true }),
+	sendOrderConfirmation: vi.fn().mockResolvedValue({ jobId: "order-job-123", success: true }),
+	sendPasswordReset: vi.fn().mockResolvedValue({ jobId: "reset-job-123", success: true }),
+	sendAdminNotification: vi.fn().mockResolvedValue({ jobId: "admin-job-123", success: true }),
+	scheduleEmail: vi.fn().mockResolvedValue({ jobId: "schedule-job-123", success: true }),
 	getQueueStats: vi.fn(),
 	getPendingJobs: vi.fn(),
 	getFailedJobs: vi.fn()
@@ -99,6 +111,45 @@ describe("EmitOrderService", () => {
         priority: 1,
         delay: 0
       });
+    });
+
+    it("should send admin notification email when order is created", async () => {
+      await usersRepository.create({
+        id: "user-123",
+        name: "John Doe",
+        email: "john@example.com",
+        password_hash: "hashed-password",
+        role: "user"
+      });
+
+      const imageBuffer = Buffer.from("fake-image-data");
+      const orderData = {
+        userId: "user-123",
+        title: "Test Order",
+        description: "Test description",
+        imageBuffer,
+      };
+
+      const { order } = await sut.execute(orderData);
+
+      expect(mockEmailQueueService.sendAdminNotification).toHaveBeenCalledWith(
+        "admin@example.com",
+        {
+          subject: "Novo Pedido Criado",
+          event: "order.created",
+          details: {
+            orderId: order.id,
+            orderTitle: "Test Order",
+            orderDescription: "Test description",
+            userId: "user-123",
+            userName: "John Doe",
+            userEmail: "john@example.com",
+            imageUrl: "https://cloudinary.com/test-image.jpg",
+            createdAt: expect.any(Date)
+          },
+          timestamp: expect.any(String)
+        }
+      );
     });
 
     it("should allow emitting when user has no pending orders", async () => {

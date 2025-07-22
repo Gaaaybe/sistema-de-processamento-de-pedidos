@@ -16,6 +16,14 @@ export class UserAlreadyExistsError extends DomainError {
 	}
 }
 
+export class AdminRegistrationNotAllowedError extends DomainError {
+	readonly code = "ADMIN_REGISTRATION_NOT_ALLOWED";
+
+	constructor(message = "Admin users cannot be created through registration") {
+		super(message);
+	}
+}
+
 export class InvalidCredentialsError extends DomainError {
 	readonly code = "INVALID_CREDENTIALS";
 

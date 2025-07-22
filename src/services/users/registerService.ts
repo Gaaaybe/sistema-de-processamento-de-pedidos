@@ -1,5 +1,5 @@
 import { logger } from "@/lib/winston";
-import { UserAlreadyExistsError } from "@/services/errors/domainErrors";
+import { UserAlreadyExistsError, AdminRegistrationNotAllowedError } from "@/services/errors/domainErrors";
 import { AuditService } from "@/services/logging/auditService";
 import type { 
 	IRegisterService, 
@@ -20,9 +20,13 @@ export class RegisterService implements IRegisterService {
 		name,
 		email,
 		password,
-		role,
+		role = "user",
 	}: RegisterServiceRequest): Promise<RegisterServiceResponse> {
 		logger.info("Starting user registration", { email, role });
+
+		if (role === "admin") {
+			throw new AdminRegistrationNotAllowedError();
+		}
 
 		const passwordHash = await hash(password, 6);
 		const userWithSameEmail = await this.usersRepository.findByEmail(email);

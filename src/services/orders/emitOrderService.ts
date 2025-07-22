@@ -3,6 +3,7 @@ import { AuditService } from "@/services/logging/auditService";
 import type { OrdersRepository } from "@/repositories/ordersRepository";
 import type { UsersRepository } from "@/repositories/usersRepository";
 import { OrderAlreadyExistsError } from "../errors/domainErrors";
+import { AdminService } from "../shared/adminService";
 import type { 
 	IEmitOrderService, 
 	EmitOrderServiceRequest, 
@@ -91,6 +92,32 @@ export class EmitOrderService implements IEmitOrderService {
 					userId, 
 					userEmail: user.email 
 				});
+				
+				const adminInfo = await AdminService.getAdminInfo();
+				if (adminInfo) {
+					await this.emailQueueService.sendAdminNotification(
+						adminInfo.email,
+						{
+							subject: "Novo Pedido Criado",
+							event: "order.created",
+							details: {
+								orderId: order.id,
+								orderTitle: order.title,
+								orderDescription: order.description,
+								userId: order.userId,
+								userName: user.name,
+								userEmail: user.email,
+								imageUrl: order.imageUrl,
+								createdAt: order.createdAt
+							},
+							timestamp: new Date().toISOString()
+						}
+					);
+					logger.info("Admin notification email queued successfully", { 
+						orderId: order.id, 
+						adminEmail: adminInfo.email 
+					});
+				}
 			} catch (error) {
 				logger.error("Failed to queue order confirmation email", { 
 					orderId: order.id, 

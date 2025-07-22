@@ -263,65 +263,6 @@
 						},
 						"description": "Autentica um usuário administrador"
 					}
-				},
-				{
-					"name": "Get All Users (Admin Only)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response is an array\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.be.an('array');",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": ["{{baseUrl}}"],
-							"path": ["users"]
-						},
-						"description": "Lista todos os usuários (apenas administradores)"
-					},
-					"response": [
-						{
-							"name": "Success Response",
-							"originalRequest": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Bearer {{token}}",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/users",
-									"host": ["{{baseUrl}}"],
-									"path": ["users"]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"body": "[\n  {\n    \"id\": \"user-uuid-1\",\n    \"name\": \"João Silva\",\n    \"email\": \"joao@email.com\",\n    \"role\": \"user\",\n    \"createdAt\": \"2025-07-08T22:00:00.000Z\"\n  },\n  {\n    \"id\": \"user-uuid-2\",\n    \"name\": \"Admin User\",\n    \"email\": \"admin@email.com\",\n    \"role\": \"admin\",\n    \"createdAt\": \"2025-07-08T22:00:00.000Z\"\n  }\n]"
-						}
-					]
 				}
 			]
 		},
@@ -444,36 +385,6 @@
 						},
 						"description": "Testa autenticação com credenciais inválidas"
 					}
-				},
-				{
-					"name": "Access Admin Route without Token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 401\", function () {",
-									"    pm.response.to.have.status(401);",
-									"});",
-									"",
-									"pm.test(\"Response has unauthorized message\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.message).to.include('token');",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": ["{{baseUrl}}"],
-							"path": ["users"]
-						},
-						"description": "Testa acesso a rota protegida sem token"
-					}
 				}
 			]
 		},
@@ -542,6 +453,75 @@
 						},
 						"description": "Cria um novo pedido com imagem. Requer autenticação de usuário."
 					}
+				},
+				{
+					"name": "Get User Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has orders array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('orders');",
+									"    pm.expect(jsonData.orders).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.equal('Orders retrieved successfully');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Lista todos os pedidos do usuário autenticado"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders",
+									"host": ["{{baseUrl}}"],
+									"path": ["orders"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"message\": \"Orders retrieved successfully\",\n  \"orders\": [\n    {\n      \"id\": \"order-uuid-1\",\n      \"title\": \"Pedido de Teste\",\n      \"description\": \"Descrição do pedido\",\n      \"status\": \"pending\",\n      \"imageUrl\": \"https://res.cloudinary.com/demo/image/upload/v1234567890/orders/abc123.jpg\",\n      \"userId\": \"user-uuid-1\",\n      \"createdAt\": \"2025-07-22T22:00:00.000Z\"\n    }\n  ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Emit Order - No Auth",
