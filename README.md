@@ -353,9 +353,9 @@ Importe o arquivo `Sistema-Pedidos-API.postman_collection.json` para ter acesso 
 
 ### Como Contribuir
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feat/nova-feature`)
+2. Crie uma branch para sua feature (`git checkout -b feat/seu-nome/nova-feature`)
 3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
-4. Push para a branch (`git push origin feat/nova-feature`)
+4. Push para a branch (`git push origin feat/seu-nome/nova-feature`)
 5. Abra um Pull Request
 
 ### Padrões de Código
@@ -374,9 +374,9 @@ Este projeto está sob a licença **ISC**. Veja o arquivo [LICENSE](LICENSE) par
 
 ## 👨‍� Autor
 
-**Gabriel Santos**
+**Gabriel Menezes**
 - GitHub: [@Gaaaybe](https://github.com/Gaaaybe)
-- Email: gabriel@exemplo.com
+- Email: gabenesus@gmail.com
 
 ---
 
@@ -396,8 +396,7 @@ Este projeto está sob a licença **ISC**. Veja o arquivo [LICENSE](LICENSE) par
 - [ ] **Cache Redis** para consultas frequentes
 - [ ] **Paginação** otimizada
 - [ ] **Compressão de imagens** automática
-- [ ] **CDN** para assets estáticos
-- [ ] **Microserviços** para escala
+- [ ] **Microserviços** para escala (Futuro distante)
 
 ---
 
