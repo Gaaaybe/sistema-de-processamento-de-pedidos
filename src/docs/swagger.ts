@@ -7,35 +7,6 @@ export const openApiDocument = {
 ## 📋 Sobre a API
 
 Esta API fornece funcionalidades para gerenciamento de usuários, autenticação JWT e processamento de pedidos com upload de imagens.
-
-### 🔐 Autenticação
-- Use o endpoint \`/users/authenticate\` para obter um token JWT
-- Inclua o token no header: \`Authorization: Bearer <seu-token>\`
-- Tokens têm validade limitada por segurança
-
-### 👥 Tipos de Usuário
-- **user**: Usuário padrão com acesso a criação de pedidos
-- **admin**: Administrador com acesso total
-
-### 📦 Sistema de Pedidos
-- Usuários podem criar pedidos com upload de imagem obrigatório
-- Apenas um pedido pendente por usuário é permitido
-- Formatos suportados: PNG, JPEG, JPG
-- Tamanho máximo: 5MB por arquivo
-
-### 📝 Formatos de Data
-- Todas as datas seguem o padrão ISO 8601 (UTC)
-- Exemplo: \`2025-07-07T10:30:00.000Z\`
-
-### ⚠️ Rate Limiting
-- Limite de 100 requisições por minuto por IP
-- Headers de rate limit inclusos nas respostas
-
-### 🛡️ Segurança
-- Senhas devem ter pelo menos 6 caracteres
-- Senhas devem conter: maiúscula, minúscula e número
-- Dados sensíveis nunca são retornados nas respostas
-- Upload de arquivos com validação de tipo e tamanho
     `,
 		contact: {
 			name: "Equipe de Desenvolvimento",
@@ -426,6 +397,95 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 					},
 				},
 			},
+			UpdateOrderStatusRequest: {
+				type: "object",
+				required: ["status"],
+				properties: {
+					status: {
+						type: "string",
+						enum: ["approved", "rejected", "processing"],
+						description: "Novo status para o pedido",
+						example: "approved",
+					},
+					adminName: {
+						type: "string",
+						description: "Nome do administrador que processou o pedido",
+						example: "João Admin",
+					},
+					reason: {
+						type: "string",
+						description: "Motivo da decisão (opcional)",
+						example: "Pedido atende a todos os requisitos",
+					},
+				},
+			},
+			UpdateOrderStatusResponse: {
+				type: "object",
+				properties: {
+					success: {
+						type: "boolean",
+						description: "Indica se a operação foi bem-sucedida",
+						example: true,
+					},
+					message: {
+						type: "string",
+						description: "Mensagem descritiva do resultado",
+						example: "Order status updated to approved successfully",
+					},
+					data: {
+						type: "object",
+						properties: {
+							orderId: {
+								type: "string",
+								description: "ID do pedido atualizado",
+								example: "550e8400-e29b-41d4-a716-446655440000",
+							},
+							status: {
+								type: "string",
+								description: "Novo status do pedido",
+								example: "approved",
+							},
+							updatedAt: {
+								type: "string",
+								format: "date-time",
+								description: "Data e hora da atualização",
+								example: "2025-07-22T10:30:00.000Z",
+							},
+							processedBy: {
+								type: "string",
+								description: "Quem processou o pedido",
+								example: "João Admin",
+							},
+						},
+					},
+				},
+			},
+			OrderNotFoundErrorResponse: {
+				type: "object",
+				properties: {
+					success: {
+						type: "boolean",
+						example: false,
+					},
+					message: {
+						type: "string",
+						example: "Order not found",
+					},
+				},
+			},
+			ForbiddenErrorResponse: {
+				type: "object",
+				properties: {
+					success: {
+						type: "boolean",
+						example: false,
+					},
+					message: {
+						type: "string",
+						example: "Access denied",
+					},
+				},
+			},
 		},
 	},
 	paths: {
@@ -659,6 +719,89 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 				},
 			},
 		},
+		"/admin/orders/{id}/status": {
+			patch: {
+				tags: ["Admin"],
+				summary: "Atualizar status do pedido",
+				description: "Permite que administradores atualizem o status de um pedido (aprovar, rejeitar ou processar)",
+				security: [{ bearerAuth: [] }],
+				parameters: [
+					{
+						name: "id",
+						in: "path",
+						required: true,
+						description: "ID único do pedido",
+						schema: {
+							type: "string",
+							format: "uuid",
+							example: "550e8400-e29b-41d4-a716-446655440000"
+						}
+					}
+				],
+				requestBody: {
+					required: true,
+					content: {
+						"application/json": {
+							schema: {
+								$ref: "#/components/schemas/UpdateOrderStatusRequest"
+							}
+						}
+					}
+				},
+				responses: {
+					"200": {
+						description: "Status do pedido atualizado com sucesso",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/UpdateOrderStatusResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						description: "Dados inválidos",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/ValidationErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						description: "Token não fornecido ou inválido",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						description: "Acesso negado - apenas administradores",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/ForbiddenErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						description: "Pedido não encontrado ou não pode ser atualizado",
+						content: {
+							"application/json": {
+								schema: {
+									$ref: "#/components/schemas/OrderNotFoundErrorResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 	},
 	tags: [
 		{
@@ -672,6 +815,10 @@ Esta API fornece funcionalidades para gerenciamento de usuários, autenticação
 		{
 			name: "Orders",
 			description: "Operações relacionadas a pedidos e upload de documentos",
+		},
+		{
+			name: "Admin",
+			description: "Operações administrativas - requerem permissões de administrador",
 		},
 	],
 };

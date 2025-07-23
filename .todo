@@ -1,7 +1,7 @@
 ## ✅ **1. Preparação do Ambiente**
 
 * [x] Criar repositório Git com README inicial
-* [ ] Configurar Docker para:
+* [x] Configurar Docker para:
 
   * [x] API Node.js
   * [x] Banco de dados PostgreSQL
@@ -56,8 +56,8 @@
 
 ## 🧑‍💼 **7. Painel Admin**
 
-* [ ] Endpoint `GET /admin/orders` — listar todos os pedidos
-* [ ] Endpoint `PATCH /admin/orders/:id` — aprovar/rejeitar manualmente
+* [x] Endpoint `GET /admin/orders` — listar todos os pedidos
+* [x] Endpoint `PATCH /admin/orders/:id` — aprovar/rejeitar manualmente
 
 ---
 
