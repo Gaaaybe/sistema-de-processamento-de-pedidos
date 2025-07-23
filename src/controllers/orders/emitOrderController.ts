@@ -1,7 +1,6 @@
 import { makeEmitOrderService } from "@/services";
 import { asyncHandler } from "@/middlewares";
 import type { Request, Response } from "express";
-import { ValidationError } from "@/services/errors/domainErrors";
 
 export const emitOrderController = asyncHandler(async (req: Request, res: Response) => {
   const { title, description } = req.body;

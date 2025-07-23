@@ -15,6 +15,21 @@
 			"key": "token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"auth": {
@@ -159,10 +174,11 @@
 									"    pm.expect(jsonData.user).to.have.property('role');",
 									"});",
 									"",
-									"// Salvar token para usar em outras requisições",
+									"// Salvar token de usuário para usar em outras requisições",
 									"if (pm.response.code === 200) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    pm.collectionVariables.set(\"userToken\", jsonData.token);",
 									"}"
 								]
 							}
@@ -239,6 +255,7 @@
 									"if (pm.response.code === 200) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    pm.collectionVariables.set(\"adminToken\", jsonData.token);",
 									"}"
 								]
 							}
@@ -407,7 +424,15 @@
 									"    pm.expect(jsonData).to.have.property('id');",
 									"    pm.expect(jsonData).to.have.property('title');",
 									"    pm.expect(jsonData).to.have.property('imageUrl');",
-									"});"
+									"});",
+									"",
+									"// Salvar orderId para usar em testes admin",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.id) {",
+									"        pm.collectionVariables.set(\"orderId\", jsonData.id);",
+									"    }",
+									"}"
 								]
 							}
 						}
@@ -676,7 +701,322 @@
 			]
 		},
 		{
-			"name": "�🔧 Health Check",
+			"name": "🔧 Admin",
+			"item": [
+				{
+					"name": "Get All Orders (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has orders array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('orders');",
+									"    pm.expect(jsonData.orders).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.equal('Orders retrieved successfully');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders"]
+						},
+						"description": "Lista todos os pedidos (apenas admin)"
+					}
+				},
+				{
+					"name": "Update Order Status - Approve",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response has data object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data.status).to.equal('approved');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\",\n  \"adminName\": \"João Admin\",\n  \"reason\": \"Pedido atende a todos os requisitos\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders", "{{orderId}}", "status"]
+						},
+						"description": "Aprova um pedido pendente"
+					}
+				},
+				{
+					"name": "Update Order Status - Reject",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response has data object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data.status).to.equal('rejected');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"rejected\",\n  \"adminName\": \"João Admin\",\n  \"reason\": \"Documentação incompleta\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders", "{{orderId}}", "status"]
+						},
+						"description": "Rejeita um pedido pendente"
+					}
+				},
+				{
+					"name": "Update Order Status - Processing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response has data object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data.status).to.equal('processing');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"processing\",\n  \"adminName\": \"João Admin\",\n  \"reason\": \"Pedido em análise\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders", "{{orderId}}", "status"]
+						},
+						"description": "Coloca um pedido em processamento"
+					}
+				},
+				{
+					"name": "Update Order Status - Invalid ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response has error message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData.message).to.include('not found');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\",\n  \"adminName\": \"João Admin\",\n  \"reason\": \"Teste com ID inválido\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders/invalid-uuid/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders", "invalid-uuid", "status"]
+						},
+						"description": "Testa erro com ID de pedido inválido"
+					}
+				},
+				{
+					"name": "Update Order Status - Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401 or 403\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+									"});",
+									"",
+									"pm.test(\"Response has error message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\",\n  \"adminName\": \"Usuário Comum\",\n  \"reason\": \"Tentativa de acesso não autorizado\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "orders", "{{orderId}}", "status"]
+						},
+						"description": "Testa acesso negado para usuários comuns"
+					}
+				}
+			]
+		},
+		{
+			"name": "🛠️ Health Check",
 			"item": [
 				{
 					"name": "Health Check",

@@ -6,7 +6,6 @@ import { InMemoryUsersRepository } from "@/repositories/in-memory/inMemoryUsersR
 import type { IUploadService, IEmailQueueService } from "@/services/interfaces";
 import { createUploadServiceMock } from "../utils";
 
-// Mock do AdminService
 vi.mock("@/services/shared/adminService", () => ({
 	AdminService: {
 		getAdminInfo: vi.fn().mockResolvedValue({
@@ -24,6 +23,7 @@ const mockEmailQueueService: IEmailQueueService = {
 	sendOrderConfirmation: vi.fn().mockResolvedValue({ jobId: "order-job-123", success: true }),
 	sendPasswordReset: vi.fn().mockResolvedValue({ jobId: "reset-job-123", success: true }),
 	sendAdminNotification: vi.fn().mockResolvedValue({ jobId: "admin-job-123", success: true }),
+	sendOrderStatusUpdate: vi.fn().mockResolvedValue({ jobId: "status-job-123", success: true }),
 	scheduleEmail: vi.fn().mockResolvedValue({ jobId: "schedule-job-123", success: true }),
 	getQueueStats: vi.fn(),
 	getPendingJobs: vi.fn(),
