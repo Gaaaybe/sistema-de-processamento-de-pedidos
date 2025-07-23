@@ -33,6 +33,17 @@ export interface IEmailQueueService {
   sendOrderConfirmation(to: string, orderData: { orderId: string; title: string; description: string; status: string; userId: string }): Promise<QueueEmailResponse>;
   sendPasswordReset(to: string, resetData: { name: string; resetLink: string; userId: string }): Promise<QueueEmailResponse>;
   sendAdminNotification(to: string, adminData: { subject: string; event: string; details: Record<string, unknown>; timestamp: string }): Promise<QueueEmailResponse>;
+  sendOrderStatusUpdate(to: string, statusData: { 
+    userName: string; 
+    orderId: string; 
+    title: string; 
+    status: string; 
+    userId: string;
+    updatedAt?: string;
+    adminName?: string;
+    reason?: string;
+    imageUrl?: string;
+  }): Promise<QueueEmailResponse>;
   scheduleEmail(to: string, template: string, data: Record<string, unknown>, delayInMs: number): Promise<QueueEmailResponse>;
   
   getQueueStats(): Promise<{ waiting: number; active: number; completed: number; failed: number; }>;

@@ -49,16 +49,13 @@ export const AuditService = {
 
 	orderStatusChanged(
 		orderId: string,
-		oldStatus: string,
 		newStatus: string,
-		userId: string,
 	) {
 		AuditService.log({
 			action: "ORDER_STATUS_CHANGED",
 			resource: "order",
 			resourceId: orderId,
-			userId,
-			details: { oldStatus, newStatus },
+			details: { newStatus },
 		});
 	},
 

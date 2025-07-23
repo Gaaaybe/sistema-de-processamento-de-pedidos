@@ -1,8 +1,6 @@
-import { PrismaOrdersRepository } from "@/repositories/prisma/prismaOrdersRepository";
-import { PrismaUsersRepository } from "@/repositories/prisma/prismaUsersRepository";
-import { EmitOrderService } from "@/services/orders/emitOrderService";
-import { makeUploadService } from "../shared/makeUploadService";
-import { makeEmailQueueService } from "../shared/makeEmailQueueService";
+import { PrismaOrdersRepository, PrismaUsersRepository } from "@/repositories";
+import { EmitOrderService } from "@/services";
+import { makeUploadService, makeEmailQueueService } from "../";
 import type { IEmitOrderService } from "@/services/interfaces";
 
 export function makeEmitOrderService(): IEmitOrderService {

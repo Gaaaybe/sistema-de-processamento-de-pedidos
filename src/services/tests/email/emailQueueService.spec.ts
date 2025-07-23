@@ -276,7 +276,7 @@ describe("EmailQueueService", () => {
         const mockJob = { id: "scheduled-job-123" };
         mockEmailQueue.add.mockResolvedValue(mockJob);
         
-        const delayMs = 60000; // 1 minute
+        const delayMs = 60000;
 
         const result = await sut.scheduleEmail(
           "user@example.com",

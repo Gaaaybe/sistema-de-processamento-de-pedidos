@@ -92,6 +92,28 @@ export class EmailQueueService implements IEmailQueueService {
     });
   }
 
+  async sendOrderStatusUpdate(to: string, statusData: { 
+    userName: string; 
+    orderId: string; 
+    title: string; 
+    status: string; 
+    userId: string;
+    updatedAt?: string;
+    adminName?: string;
+    reason?: string;
+    imageUrl?: string;
+  }) {
+    return this.execute({
+      to,
+      template: 'order-status-update',
+      data: {
+        ...statusData,
+        updatedAt: statusData.updatedAt || new Date().toLocaleString('pt-BR'),
+      },
+      priority: 2, // Alta prioridade para notificações de status
+    });
+  }
+
   async scheduleEmail(to: string, template: string, data: Record<string, unknown>, delayInMs: number) {
     return this.execute({
       to,

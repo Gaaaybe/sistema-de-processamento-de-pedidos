@@ -64,6 +64,141 @@ export class EmailService implements IEmailService {
       text: `Redefinição de senha. Link: ${data.resetLink}`
     }),
     
+    'order-status-update': (data) => {
+      const statusMessages = {
+        approved: {
+          title: '✅ Pedido Aprovado!',
+          message: 'Temos uma ótima notícia! Seu pedido foi aprovado.',
+          color: '#28a745',
+          nextSteps: 'Agora seu pedido entrará em processamento. Você receberá mais atualizações em breve.'
+        },
+        rejected: {
+          title: '❌ Pedido Rejeitado',
+          message: 'Infelizmente, seu pedido não pôde ser aprovado.',
+          color: '#dc3545',
+          nextSteps: 'Você pode revisar os detalhes e enviar um novo pedido se desejar.'
+        },
+        processing: {
+          title: '⏳ Pedido em Processamento',
+          message: 'Seu pedido está sendo processado.',
+          color: '#17a2b8',
+          nextSteps: 'Estamos trabalhando no seu pedido. Aguarde novas atualizações.'
+        }
+      };
+
+      const statusInfo = statusMessages[data.status as keyof typeof statusMessages] || {
+        title: '📋 Status do Pedido Atualizado',
+        message: `Status do seu pedido foi atualizado para: ${data.status}`,
+        color: '#6c757d',
+        nextSteps: 'Acompanhe as atualizações do seu pedido.'
+      };
+
+      return {
+        subject: `${statusInfo.title} - Pedido ${data.orderId}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background-color: ${statusInfo.color}; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; font-size: 24px;">${statusInfo.title}</h1>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px;">
+              <p style="font-size: 18px; margin-bottom: 20px;">Olá, ${data.userName}!</p>
+              
+              <p style="font-size: 16px; margin-bottom: 25px;">${statusInfo.message}</p>
+              
+              <div style="background-color: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid ${statusInfo.color};">
+                <h2 style="margin-top: 0; color: #333; font-size: 18px;">📋 Detalhes do Pedido</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px 0; font-weight: bold; color: #555;">ID do Pedido:</td>
+                    <td style="padding: 8px 0;">${data.orderId}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px 0; font-weight: bold; color: #555;">Título:</td>
+                    <td style="padding: 8px 0;">${data.title}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px 0; font-weight: bold; color: #555;">Status Atual:</td>
+                    <td style="padding: 8px 0;">
+                      <span style="background-color: ${statusInfo.color}; color: white; padding: 4px 12px; border-radius: 16px; font-size: 14px; font-weight: bold;">
+                        ${String(data.status || '').toUpperCase()}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 8px 0; font-weight: bold; color: #555;">Data da Atualização:</td>
+                    <td style="padding: 8px 0;">${data.updatedAt || new Date().toLocaleString('pt-BR')}</td>
+                  </tr>
+                  ${data.adminName ? `
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 8px 0; font-weight: bold; color: #555;">Processado por:</td>
+                      <td style="padding: 8px 0;">${data.adminName}</td>
+                    </tr>
+                  ` : ''}
+                </table>
+              </div>
+              
+              ${data.reason ? `
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
+                  <h3 style="margin: 0 0 10px 0; color: #856404; font-size: 16px;">💬 Observações</h3>
+                  <p style="margin: 0; color: #856404; font-style: italic;">"${data.reason}"</p>
+                </div>
+              ` : ''}
+              
+              <div style="background-color: #e7f3ff; border: 1px solid #b3d7ff; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="margin: 0 0 10px 0; color: #004085; font-size: 16px;">🔄 Próximos Passos</h3>
+                <p style="margin: 0; color: #004085;">${statusInfo.nextSteps}</p>
+              </div>
+              
+              ${data.imageUrl ? `
+                <div style="text-align: center; margin-bottom: 25px;">
+                  <p style="margin-bottom: 10px; color: #555;">📷 Imagem do Pedido:</p>
+                  <a href="${data.imageUrl}" style="color: ${statusInfo.color}; text-decoration: none; font-weight: bold;">
+                    Ver Imagem Anexada
+                  </a>
+                </div>
+              ` : ''}
+              
+              <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                  Dúvidas? Entre em contato conosco através do nosso suporte.
+                </p>
+              </div>
+            </div>
+            
+            <div style="text-align: center; padding: 20px; color: #6c757d; font-size: 12px; border-top: 1px solid #eee;">
+              <p style="margin: 0;">© ${new Date().getFullYear()} Sistema de Pedidos - Todos os direitos reservados</p>
+              <p style="margin: 5px 0 0 0;">Este é um email automático, não responda a esta mensagem.</p>
+            </div>
+          </div>
+        `,
+        text: `
+${statusInfo.title} - Pedido ${data.orderId}
+
+Olá, ${data.userName}!
+
+${statusInfo.message}
+
+DETALHES DO PEDIDO:
+- ID: ${data.orderId}
+- Título: ${data.title}
+- Status: ${String(data.status || '').toUpperCase()}
+- Atualizado em: ${data.updatedAt || new Date().toLocaleString('pt-BR')}
+${data.adminName ? `- Processado por: ${data.adminName}` : ''}
+
+${data.reason ? `OBSERVAÇÕES: "${data.reason}"` : ''}
+
+PRÓXIMOS PASSOS: ${statusInfo.nextSteps}
+
+${data.imageUrl ? `Imagem: ${data.imageUrl}` : ''}
+
+---
+Sistema de Pedidos
+Este é um email automático, não responda a esta mensagem.
+        `
+      };
+    },
+
     'admin-notification': (data) => ({
       subject: `[ADMIN] ${data.subject}`,
       html: `
