@@ -41,5 +41,26 @@ export const getUserOrdersResponseSchema = z.object({
     ),
 });
 
+export const updateOrderStatusRequestSchema = z.object({
+    status: z.enum(["approved", "rejected", "processing"], {
+        errorMap: () => ({ message: "Status must be 'approved', 'rejected', or 'processing'" })
+    }),
+    adminName: z.string().optional(),
+    reason: z.string().optional(),
+}).strict();
+
+export const updateOrderStatusResponseSchema = z.object({
+    success: z.boolean(),
+    message: z.string(),
+    data: z.object({
+        orderId: z.string(),
+        status: z.string(),
+        updatedAt: z.string(),
+        processedBy: z.string(),
+    }),
+});
+
 export type EmitOrderRequest = z.infer<typeof emitOrderRequestSchema>;
 export type EmitOrderResponse = z.infer<typeof emitOrderResponseSchema>;
+export type UpdateOrderStatusRequest = z.infer<typeof updateOrderStatusRequestSchema>;
+export type UpdateOrderStatusResponse = z.infer<typeof updateOrderStatusResponseSchema>;

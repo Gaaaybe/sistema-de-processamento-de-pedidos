@@ -1,7 +1,17 @@
 import { Router } from "express";
-import { emitOrderController } from "./emitOrderController";
-import { getUserOrdersController } from "./getUserOrdersController";
-import { validateJWT, validateEmitOrder, uploadSingle, validateImageFile } from "@/middlewares";
+import { 
+  getAllOrdersController, 
+  getUserOrdersController, 
+  emitOrderController,
+  updateOrderStatusController 
+} from "@/controllers/orders/";
+import { 
+  validateJWT, 
+  validateEmitOrder, 
+  validateUpdateOrderStatus,
+  uploadSingle, 
+  validateImageFile 
+} from "@/middlewares";
 
 const orderRouter = Router();
 
@@ -18,6 +28,19 @@ orderRouter.post(
   validateImageFile,
   validateEmitOrder, 
   emitOrderController
+);
+
+orderRouter.get(
+  "/admin/orders",
+  validateJWT("admin"),
+  getAllOrdersController
+);
+
+orderRouter.patch(
+  "/admin/orders/:id/status",
+  validateJWT("admin"),
+  validateUpdateOrderStatus,
+  updateOrderStatusController
 );
 
 export default orderRouter;
